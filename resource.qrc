@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/resources">
+        <file>img/ML.png</file>
+        <file>img/Menu.png</file>
+        <file>img/Shutdown.png</file>
+        <file>img/settings.png</file>
+        <file>../../USERINTERFACE/UTILITIS.png</file>
+        <file>../../USERINTERFACE/USER GUID.png</file>
+        <file>../../USERINTERFACE/SHUTDOWN.png</file>
+        <file>../../USERINTERFACE/SETTING.png</file>
+        <file>../../USERINTERFACE/RIGHT TOP CORNER.png</file>
+        <file>../../USERINTERFACE/RIGHT DOWN CORNER.png</file>
+        <file>../../USERINTERFACE/RESTART.png</file>
+        <file>../../USERINTERFACE/LOGOS.png</file>
+        <file>../../USERINTERFACE/logo .png</file>
+        <file>../../USERINTERFACE/LEFT TOP CORNER.png</file>
+        <file>../../USERINTERFACE/LEFT DOWN CORNER.png</file>
+        <file>../../USERINTERFACE/HOME.png</file>
+        <file>../../USERINTERFACE/HISTORY DATA.png</file>
+        <file>../../USERINTERFACE/TEST.png</file>
+        <file>../../USERINTERFACE/QC.png</file>
+        <file>../../USERINTERFACE/TEST CONFIG.png</file>
+    </qresource>
+    <qresource prefix="/"/>
+</RCC>
