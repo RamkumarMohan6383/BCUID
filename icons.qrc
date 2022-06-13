@@ -1,13 +1,31 @@
 <RCC>
     <qresource prefix="/">
+        <file>img/eye.png</file>
+        <file>img/hidden.png</file>
+        <file>img/HISTORYDATA.png</file>
         <file>img/home.png</file>
+        <file>img/LOGOS.png</file>
         <file>img/Menu.png</file>
+        <file>img/ML.png</file>
         <file>img/QC.png</file>
+        <file>img/setting1.png</file>
         <file>img/settings.png</file>
         <file>img/Shutdown.png</file>
+        <file>img/ShutDown1.png</file>
+        <file>img/symbol.png</file>
         <file>img/TEST.png</file>
-        <file>img/HISTORYDATA.png</file>
         <file>img/TESTCONFIG.png</file>
-        <file>img/LOGOS.png</file>
+        <file>img/thumbnail.png</file>
+        <file>img/undo.png</file>
+        <file>img/power-off.png</file>
+        <file>img/accept.png</file>
+        <file>img/check.png</file>
+        <file>img/delete.png</file>
+        <file>img/output-onlinepngtools (1).png</file>
+        <file>img/icons8-cancel-50.png</file>
+        <file>img/output-onlinepngtools (3).png</file>
+        <file>img/output-onlinepngtools (4).png</file>
+        <file>img/output-onlinepngtools (8).png</file>
+        <file>img/output-onlinepngtools.png</file>
     </qresource>
 </RCC>

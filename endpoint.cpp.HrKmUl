@@ -1,0 +1,390 @@
+#include "bcmainwindow.h"
+#include "ui_bcmainwindow.h"
+
+static int filtwave[200];
+static double bc_y_val=0;
+
+#define steps 7
+#define dir 0
+#define en 3
+#define hm_sen 4
+
+#define LED 26
+#define init 0
+#define range 100
+
+#define BARCODE_GND 21
+
+#define ADC_BASE 100
+#define SPI_CHAN 0
+
+#define LED_BASE 200
+
+#define dataPin 21
+#define clockPin 22
+#define latchPin 23
+
+
+void BCMainWindow::fact()
+{
+    QString name;
+    name = ui->TestName_Lbl->text();
+    int fact = 0;
+    QSqlQuery query;
+    query.prepare("select * from test where name = '"+name+"'");
+    query.exec();
+    while(query.next())
+    {
+        fact = query.value(6).toInt();
+    }
+    qDebug()<<fact;
+
+}
+
+int BCMainWindow::reading()
+{
+    double samplingrate=0,cutoff_frequency=0;
+    QSqlQuery query;
+    query.prepare("select samprate, cutoff from tests where sno=1");
+    query.exec();
+    while(query.next())
+    {
+        samplingrate=query.value(0).toDouble();
+        cutoff_frequency=query.value(1).toDouble();
+    }
+    QThread::sleep(1);
+    const int order = 2; // 4th order (=2 biquads)
+    Iir::Butterworth::LowPass<order> fwave;
+    fwave.setup (samplingrate, cutoff_frequency);
+    //clearData();
+    //plot_end_blnk();
+    QString name;
+    name = ui->TestName_Lbl->text();
+    int wavelength=0, Wave =0;
+    query.prepare("select * from test where name = '"+name+"'");
+    query.exec();
+    while(query.next())
+    {
+        wavelength=query.value(2).toInt();
+
+    }
+    if(wavelength==360)
+    {
+        Wave=6;
+
+    }
+
+    if(wavelength==405)
+    {
+        Wave=5;
+    }
+    if(wavelength==507)
+    {
+        Wave=4;
+    }
+    if(wavelength==545)
+    {
+        Wave=3;
+    }
+    if(wavelength==572)
+    {
+        Wave=2;
+    }
+    if(wavelength==628)
+    {
+        Wave=1;
+    }
+    if(wavelength==660)
+    {
+        Wave=0;
+    }
+
+
+    qDebug()<<wavelength;
+
+    int blank[200];
+    pwmWrite (LED, intensity);
+    digitalWrite (LED_BASE + 6-Wave,HIGH) ;
+    QThread::msleep(200);
+    for(int j=0;j<3;j++)
+    {
+        for(int i=0;i<200;i++)
+        {
+            blank[i]=readadc(Wave);
+            QThread::msleep(1);
+            //filtwave[i]=fwave.filter(blank[i]);
+        }
+        QThread::msleep(10);
+        for(int i=100;i<200;i++)
+        {
+            filtwave[0]+=filtwave[i];
+        }
+    }
+
+    //digitalWrite (LED_BASE + 6-Wave,LOW) ;
+    filtwave[0]=filtwave[0]/100;
+
+    //ui->label->setNum(filtwave[0]);
+    return filtwave[0];
+
+}
+
+void BCMainWindow::on_RunBlank_Btn_clicked()
+{
+    reading();
+    ui->label->setNum(filtwave[0]);
+
+    QSqlQuery query;
+
+    QString Blankval;
+
+    //    Blankval = char (blnkval);
+    Blankval = ui->label->text();
+    QString name;
+    name = ui->TestName_Lbl->text();
+    query.prepare("update test set blnkval='"+Blankval+"' where name='"+name+"'");
+    if(query.exec())
+    {
+        qDebug()<<"Update Done";
+    }
+    else
+    {
+        qDebug()<<"Error";
+    }
+}
+
+void BCMainWindow::plot_end_blnk()
+{
+    ui->customPlot->graph(0)->setData(qv_x,qv_y);
+    ui->customPlot->xAxis->setLabel("POINTS");
+    ui->customPlot->yAxis->setLabel("OD");
+    // set axes ranges, so we see all data:
+    ui->customPlot->xAxis->setRange(0, 5);
+    ui->customPlot->yAxis->setRange(-0.2,2.5);
+    ui->customPlot->replot();
+    //ui->customPlot->update();
+}
+
+
+
+void BCMainWindow::on_RunCal_Btn_clicked()
+{
+
+    ui->label_34->setText("");
+    double samplingrate=0,cutoff_frequency=0;
+    QSqlQuery query;
+    query.prepare("select samprate, cutoff from tests where sno=1");
+    query.exec();
+    while(query.next())
+    {
+        samplingrate=query.value(0).toDouble();
+        cutoff_frequency=query.value(1).toDouble();
+    }
+
+    QThread::sleep(1);
+    const int order = 2; // 4th order (=2 biquads)
+    Iir::Butterworth::LowPass<order> fwave;
+    fwave.setup (samplingrate, cutoff_frequency);
+    clearData();
+    plot_end_calibrate();
+    QString name;
+    name = ui->TestName_Lbl->text();
+    int wavelength=0 , blankval = 0;
+    //blankval=ui->label->text().toInt();
+    query.prepare("select * from test where name = '"+name+"'");
+    query.exec();
+    while(query.next())
+    {
+        wavelength=query.value(2).toInt();
+        blankval=query.value(32).toInt();
+    }
+
+
+
+    qDebug()<<wavelength;
+    double transmission=0,absorbance=0 ;
+    QThread::msleep(200);
+    for(int i=0;i<=5;i++)
+    {
+        reading();
+        transmission=blankval/filtwave[0];
+        qDebug()<<blankval<<filtwave[0]<<transmission;
+        absorbance=log10(transmission);
+        if(absorbance<0)
+        {
+            absorbance=0;
+        }
+        qDebug()<<absorbance;
+        addPoint(i,absorbance);
+        plot_end_calibrate();
+        QApplication::processEvents();
+        //QThread::msleep(300);
+    }
+    ui->label_89->setNum(filtwave[0]);
+    ui->label_34->setText(QString::number(absorbance, 'f', 3));
+    QString CalibrateAbs;
+    int calibrate = 0;
+    CalibrateAbs = char (calibrate);
+    CalibrateAbs = ui->label_34->text();
+    query.prepare("update test set calibrateabs='"+CalibrateAbs+"' where name='"+name+"'");
+    if(query.exec())
+    {
+        qDebug()<<"Update Done";
+    }
+    else
+    {
+        qDebug()<<"Error";
+    }
+
+
+}
+
+void BCMainWindow::plot_end_calibrate()
+{
+    ui->customPlot->graph(0)->setData(qv_x,qv_y);
+    ui->customPlot->xAxis->setLabel("POINTS");
+    ui->customPlot->yAxis->setLabel("OD");
+    // set axes ranges, so we see all data:
+    ui->customPlot->xAxis->setRange(0, 5);
+    ui->customPlot->yAxis->setRange(-0.2,2.5);
+    ui->customPlot->replot();
+    //ui->customPlot->update();
+}
+
+
+
+
+void BCMainWindow::on_RunSample_Btn_clicked()
+{
+    ui->label_5->setText("");
+    ui->label_6->setText("");
+    double samplingrate=0,cutoff_frequency=0;
+    QSqlQuery query;
+    query.prepare("select samprate, cutoff from tests where sno=1");
+    query.exec();
+    while(query.next())
+    {
+        samplingrate=query.value(0).toDouble();
+        cutoff_frequency=query.value(1).toDouble();
+    }
+    QThread::sleep(1);
+    const int order = 2; // 4th order (=2 biquads)
+    Iir::Butterworth::LowPass<order> fwave;
+    fwave.setup (samplingrate, cutoff_frequency);
+    clearData();
+    plot_end();
+    QString name;
+    name = ui->TestName_Lbl->text();
+    int wavelength=0 , blank = 0, con1 = 0 ; //read = 0 ,
+    double transmission=0,absorbance=0 ;
+
+    query.prepare("select * from test where name = '"+name+"'");
+    query.exec();
+    while(query.next())
+    {
+        wavelength=query.value(2).toInt();
+        blank=query.value(32).toInt();
+        //read=query.value(9).toInt();
+        con1 = query.value(18).toInt();
+    }
+
+    qDebug()<<blank;
+    QThread::msleep(200);
+    for(int i=0;i<=5;i++)
+    {
+        reading();
+        transmission=blank/filtwave[0];
+        qDebug()<<blank<<filtwave[0]<<transmission;
+        absorbance=log10(transmission);
+        if(absorbance<0)
+        {
+            absorbance=0;
+        }
+        qDebug()<<absorbance;
+        addPoint(i,absorbance);
+
+            plot_end();
+            QApplication::processEvents();
+            //QThread::msleep(615);
+        }
+
+
+    ui->label_5->setNum(filtwave[0]);
+    ui->label_6->setText(QString::number(absorbance, 'f', 3));
+    double od1=ui->label_34->text().toDouble();
+    double od2=ui->label_6->text().toDouble();
+    double dod=(od2/od1)*con1;
+    ui->label_33->setText(QString::number(dod, 'f', 3));
+}
+
+void BCMainWindow::addPoint(double x, double y)
+{
+    qv_x.append(x);
+    qv_y.append(y);
+    if(y>bc_y_val)
+        bc_y_val=y;
+}
+
+void BCMainWindow::clearData()
+{
+    qv_x.clear();
+    qv_y.clear();
+}
+
+void BCMainWindow::plot_end()
+{
+    /*QSqlQuery query;
+    QString name;
+    name=ui->TestName_Lbl->text();
+    int  read = 0;
+    query.prepare("select * from test where name='"+name+"'");
+    query.exec();
+    while(query.next())
+    {
+        read=query.value(9).toInt();
+
+    }
+    qDebug()<<read;*/
+    ui->customPlot->graph(0)->setData(qv_x,qv_y);
+    ui->customPlot->xAxis->setLabel("POINTS");
+    ui->customPlot->yAxis->setLabel("OD");
+    // set axes ranges, so we see all data:
+    ui->customPlot->xAxis->setRange(0, 5);
+    ui->customPlot->yAxis->setRange(0,2.5);
+    ui->customPlot->replot();
+    ui->customPlot->update();
+}
+
+void BCMainWindow::on_Print_Btn_clicked()
+{
+    QString TName ,  OD_val,Result,DateTime;
+
+    int PID=0 , ANrmlRang =0 , BNrmlRang = 0 , OD_Val = 0 , Result_OD = 0 , dateTime =0 ;
+    TName=ui->lineEdit_4->text();
+    //PID=ui->lineEdit_5->text();
+    //wave = ui->WaveLength_Combo->currentIndex();
+    //rctn=ui->ReactionType_Combo->currentIndex();, rctn=0;
+
+    QSqlQuery qry;
+
+    qry.prepare("insert into Reports(PID , TName , ANrmlRang , BNrmlRang , OD_Val , Result_OD , DateTime) values(?,?,?,?,?,?,?)");
+
+    //qry.addBindValue(name);
+    //qry.addBindValue(wave);
+
+
+
+    Pi2c arduino(7);
+    QString data=ui->TestName_Lbl->text();
+    QString data1=ui->PatientInfo_LineEdit->text();
+    QString data2=ui->label_34->text();
+    QString data3=ui->label_33->text();
+    char* ch;
+    QByteArray ba=data.toLatin1();
+    ch=ba.data();
+    QThread::msleep(100);
+    arduino.i2cWrite(ch,30);
+    QThread::msleep(100);
+}
+
+

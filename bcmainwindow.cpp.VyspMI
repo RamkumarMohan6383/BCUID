@@ -1,0 +1,3295 @@
+#include "bcmainwindow.h"
+#include "ui_bcmainwindow.h"
+#include <QTimer>
+#include <QDateTime>
+#include <QDate>
+#include <QMessageBox>
+
+
+#define steps 7
+#define dir 0
+#define en 3
+#define hm_sen 4
+
+#define LED 26
+#define init 0
+#define range 100
+
+#define BARCODE_GND 21
+
+#define ADC_BASE 100
+#define SPI_CHAN 0
+
+#define LED_BASE 200
+
+#define dataPin 21
+#define clockPin 22
+#define latchPin 23
+
+static int readbc[200];
+static int filtwave[200];
+
+static int opt=0;
+static double bc_y_val=0;
+
+static QString array[100]={""};
+
+BCMainWindow::BCMainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::BCMainWindow)
+{
+    ui->setupUi(this);
+
+    ui->frame->hide();
+
+    QScroller::grabGesture(ui->scrollArea, QScroller::LeftMouseButtonGesture);
+    QScroller::grabGesture(ui->scrollArea_3, QScroller::LeftMouseButtonGesture);
+    QScroller::grabGesture(ui->scrollArea_4, QScroller::LeftMouseButtonGesture);
+    QScroller::grabGesture(ui->scrollArea_5, QScroller::LeftMouseButtonGesture);
+
+    /*wiringPiSetup () ;
+    mcp3004Setup (ADC_BASE, SPI_CHAN) ;
+    sr595Setup (LED_BASE, 8, dataPin, clockPin, latchPin) ;
+    //softPwmCreate(LED, init,range);
+    pinMode (en, OUTPUT) ;
+    pinMode (dir, OUTPUT) ;
+    pinMode (steps, OUTPUT) ;
+    pinMode (hm_sen, INPUT) ;
+    pinMode (BARCODE_GND, OUTPUT) ;
+    //softPwmWrite(LED,0);
+    digitalWrite(en,HIGH);
+
+    digitalWrite(BARCODE_GND,LOW);
+    pinMode (LED, PWM_OUTPUT);
+    pwmWrite (LED, 0);*/
+
+
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this,SLOT(temp()));
+    timer->start(1000);
+
+    QSqlDatabase mydb=QSqlDatabase::addDatabase("QSQLITE");
+    mydb.setDatabaseName("/home/pi/git/BCUID/bcd.db");
+    if(mydb.open())
+        qDebug()<<"DB Connected";
+    else
+        qDebug()<<"DB Failed";
+
+    BCMainWindow::makePlot();
+
+    QTimer * timer = new QTimer(this);
+    connect(timer ,SIGNAL(timeout()) , this ,SLOT(ShowTime()));
+    timer->start();
+
+    QDate date=QDate::currentDate();
+    QString datetext= date.toString("dd / MM / yyyy");
+    ui->SysDate_Lbl->setText(datetext);
+    setWindowFlags(Qt::FramelessWindowHint);
+    ui->customPlot->setBackground(QColor(0,0,26));
+    ui->customPlot->xAxis->setBasePen(QPen(Qt::white, 1));
+    ui->customPlot->yAxis->setBasePen(QPen(Qt::white, 1));
+    ui->customPlot->xAxis->setTickPen(QPen(Qt::white, 1));
+    ui->customPlot->yAxis->setTickPen(QPen(Qt::white, 1));
+    //     ui->customPlot->xAxis->setSubTickPen(QPen(Qt::white, 1));
+    //     ui->customPlot->yAxis->setSubTickPen(QPen(Qt::white, 1));
+    ui->customPlot->xAxis->setTickLabelColor(Qt::white);
+    ui->customPlot->yAxis->setTickLabelColor(Qt::white);
+    //     ui->customPlot->xAxis->grid()->setPen(QPen(QColor(140, 140, 140), 1, Qt::DotLine));
+    //     ui->customPlot->yAxis->grid()->setPen(QPen(QColor(140, 140, 140), 1, Qt::DotLine));
+    //     ui->customPlot->xAxis->grid()->setSubGridPen(QPen(QColor(80, 80, 80), 1, Qt::DotLine));
+    //     ui->customPlot->yAxis->grid()->setSubGridPen(QPen(QColor(80, 80, 80), 1, Qt::DotLine));
+    //     ui->customPlot->xAxis->grid()->setSubGridVisible(true);
+    //     ui->customPlot->yAxis->grid()->setSubGridVisible(true);
+    //     ui->customPlot->xAxis->grid()->setZeroLinePen(Qt::NoPen);
+    //     ui->customPlot->yAxis->grid()->setZeroLinePen(Qt::NoPen);
+    //     ui->customPlot->xAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+    //     ui->customPlot->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+
+
+    //ui->customPlot_2->setBackground(QColor(0,0,26));
+    ui->customPlot->addGraph();
+    ui->customPlot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
+    ui->customPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
+
+    ;
+
+}
+void BCMainWindow::ShowTime()
+{
+    QTime time = QTime::currentTime();
+    QString time_text = time.toString("hh : mm : ss");
+    if((time.second() % 2)==0)
+    {
+        time_text[3]= ' ';
+        time_text[8]= ' ';
+    }
+
+    ui->SysTime_Lbl->setText(time_text);
+}
+
+BCMainWindow::~BCMainWindow()
+{
+    delete ui;
+}
+
+void BCMainWindow::makePlot()
+{
+
+}
+
+
+
+void BCMainWindow::on_Home_Btn_2_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_Menu_Btn_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(1);
+
+}
+
+void BCMainWindow::on_Menu_Btn_2_clicked()
+{
+    if (ui->frame->isVisible())
+
+        ui->frame->setVisible(false);
+    else
+
+        ui->frame->setVisible(true);
+}
+
+void BCMainWindow::on_Test_Btn_4_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(1);
+
+    QSqlQuery query;
+    query.prepare("SELECT name FROM test");
+    query.exec();
+    int count=0;
+    while(query.next())
+    {
+        QString s=query.value(0).toString();
+        array[count]=s;
+        count++;
+        qDebug()<<s;
+    }
+    int count1=0;
+    const QSize btnSize = QSize(150, 50);
+    for (int i=0;i<15 ;i++ )
+    {
+        for (int j=0;j<5 ;j++ )
+        {
+            if(count1==count)
+                break;
+            else
+            {
+                QPushButton *button = new QPushButton(array[count1]);
+                button->setFixedSize(btnSize);
+                button->setObjectName(array[count1]);
+                connect(button, &QPushButton::clicked, this, &BCMainWindow::cald);
+                ui->gridLayout->addWidget(button,i,j);
+                //lay->addWidget(button,i,j);
+            }
+            count1++;
+        }
+
+    }
+
+}
+
+void BCMainWindow::cald()
+{
+    QObject *senderObj = sender(); // This will give Sender object
+    QString senderObjName = senderObj->objectName();
+    //qDebug()<< "Button: " << senderObjName;;
+    ui->TestName_Lbl->setText(senderObjName);
+    ui->stackedWidget->setCurrentIndex(2);
+}
+
+void BCMainWindow::on_Save_Btn_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+
+    QString name, unit;
+    unsigned int wave, rctn, temp, fact, blnk, dely, read, lag, linmin, linmax, normin, normax;
+    unsigned int mode, nostd, rpt, con1,con2,con3,con4,con5,con6,con7,con8;
+    unsigned int ctrl1avg, ctrl1min, ctrl1bno, ctrl2avg, ctrl2min, ctrl2bno;
+
+    name=ui->lineEdit_4->text();
+    unit=ui->lineEdit_5->text();
+    wave=ui->WaveLength_Combo->currentText().toUInt();
+    rctn=ui->ReactionType_Combo->currentIndex();
+    temp=ui->Temp_Combo->currentIndex();
+    fact=ui->lineEdit_6->text().toUInt();
+    blnk=ui->BlankType_Combo->currentIndex();
+    dely=ui->lineEdit_7->text().toUInt();
+    read=ui->lineEdit_8->text().toUInt();
+    lag=ui->lineEdit_22->text().toUInt();
+    linmin=ui->lineEdit_9->text().toUInt();
+    linmax=ui->lineEdit_10->text().toUInt();
+    normin=ui->lineEdit_12->text().toUInt();
+    normax=ui->lineEdit_11->text().toUInt();
+    mode=ui->comboBox->currentIndex();
+    nostd=ui->comboBox_5->currentText().toUInt();
+    rpt=ui->comboBox_6->currentText().toUInt();
+    con1=ui->lineEdit_13->text().toUInt();
+    con2=ui->lineEdit_14->text().toUInt();
+    con3=ui->lineEdit_15->text().toUInt();
+    con4=ui->lineEdit_16->text().toUInt();
+    con5=ui->lineEdit_18->text().toUInt();
+    con6=ui->lineEdit_19->text().toUInt();
+    con7=ui->lineEdit_17->text().toUInt();
+    con8=ui->lineEdit_20->text().toUInt();
+    ctrl1avg=ui->lineEdit_21->text().toUInt();
+    ctrl1min=ui->lineEdit_23->text().toUInt();
+    ctrl1bno=ui->lineEdit_26->text().toUInt();
+    ctrl2avg=ui->lineEdit_25->text().toUInt();
+    ctrl2min=ui->lineEdit_28->text().toUInt();
+    ctrl2bno=ui->lineEdit_29->text().toUInt();
+
+
+
+    QSqlQuery qry;
+
+    qry.prepare("insert into test(name,wave,rctn,unit,temp,fact,blnk,dely,read,lag,linmin,linmax,normin,normax,mode,nostd,rpt,con1,con2,con3,con4,con5,con6,con7,con8,"
+                "ctrl1avg,ctrl1min,ctrl1bno,ctrl2avg,ctrl2min,ctrl2bno) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    qry.addBindValue(name);
+    qry.addBindValue(wave);
+    qry.addBindValue(rctn);
+    qry.addBindValue(unit);
+    qry.addBindValue(temp);
+    qry.addBindValue(fact);
+    qry.addBindValue(blnk);
+    qry.addBindValue(dely);
+    qry.addBindValue(read);
+    qry.addBindValue(lag);
+    qry.addBindValue(linmin);
+    qry.addBindValue(linmax);
+    qry.addBindValue(normin);
+    qry.addBindValue(normax);
+    qry.addBindValue(mode);
+    qry.addBindValue(nostd);
+    qry.addBindValue(rpt);
+    qry.addBindValue(con1);
+    qry.addBindValue(con2);
+    qry.addBindValue(con3);
+    qry.addBindValue(con4);
+    qry.addBindValue(con5);
+    qry.addBindValue(con6);
+    qry.addBindValue(con7);
+    qry.addBindValue(con8);
+    qry.addBindValue(ctrl1avg);
+    qry.addBindValue(ctrl1min);
+    qry.addBindValue(ctrl1bno);
+    qry.addBindValue(ctrl2avg);
+    qry.addBindValue(ctrl2min);
+    qry.addBindValue(ctrl2bno);
+    qry.exec();
+
+}
+
+void BCMainWindow::on_Home_Btn_3_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_Home_Btn_5_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+
+void BCMainWindow::on_TestConfig_Btn_5_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(5);
+}
+
+void BCMainWindow::on_toolButton_clicked()
+{
+    ui->scrollAreaWidgetContents->update();
+}
+
+void BCMainWindow::on_pushButton_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(6);
+}
+
+void BCMainWindow::on_Home_Btn_4_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_pushButton_3_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(9);
+    QSqlQuery query;
+    query.prepare("SELECT name FROM test");
+    query.exec();
+    int count=0;
+    while(query.next())
+    {
+        QString s=query.value(0).toString();
+        array[count]=s;
+        count++;
+        qDebug()<<s;
+    }
+    int count1=0;
+    const QSize btnSize = QSize(150, 50);
+    for (int i=0;i<15 ;i++ )
+    {
+        for (int j=0;j<5 ;j++ )
+        {
+            if(count1==count)
+                break;
+            else
+            {
+                QPushButton *button = new QPushButton(array[count1]);
+                button->setFixedSize(btnSize);
+                button->setObjectName(array[count1]);
+                connect(button, &QPushButton::clicked, this, &BCMainWindow::cald3);
+                ui->gridLayout_8->addWidget(button,i,j);
+                //lay->addWidget(button,i,j);
+            }
+            count1++;
+        }
+    }
+
+}
+
+
+void BCMainWindow::on_Save_Btn_2_clicked()
+{
+
+}
+void BCMainWindow::temp()
+{
+    Pi2c arduino(7); //Create a new object "arduino" using address "0x07"
+    char receive[30]; //Create a buffer of char (single bytes) for the data
+    //Receive from the Arduino and put the contents into the "receive" char array
+    //timer1->stop();
+    QThread::msleep(100);
+    arduino.i2cRead(receive,30);
+    QThread::msleep(100);
+    QString str=receive;
+    //Print out what the Arduino is sending...
+    //qDebug() << "Arduino Says: " << str.mid(0,2);
+    ui->ReadBlock_Lbl_2->setText(str.mid(0,4));
+    ui->IncuBlock_Lbl_2->setText(str.mid(5,9));
+
+}
+
+
+void BCMainWindow::on_TestConfig_Btn_6_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(4);
+}
+
+void BCMainWindow::on_DataHis_Btn_4_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(13);
+}
+
+void BCMainWindow::on_pushButton_308_clicked()
+{
+
+}
+
+void BCMainWindow::on_Load_Btn_clicked()
+{
+    BCMainWindow conn;
+    QSqlQueryModel * modal = new QSqlQueryModel();
+
+    conn.connOpen();
+    QSqlQuery* qry=new QSqlQuery(conn.mydb);
+
+    qry->prepare("select * from test");
+
+    qry->exec();
+    modal->setQuery(*qry);
+    ui->tableView->setModel(modal);
+
+    conn.connclose();
+    qDebug() << ( modal->rowCount());
+}
+
+void BCMainWindow::on_toolButton_13_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_toolButton_12_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_Home_Btn_6_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_QC_Btn_4_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(11);
+
+    QSqlQuery query;
+    query.prepare("SELECT name FROM test");
+    query.exec();
+    int count=0;
+    while(query.next())
+    {
+        QString s=query.value(0).toString();
+        array[count]=s;
+        count++;
+        qDebug()<<s;
+    }
+    int count1=0;
+    const QSize btnSize = QSize(150, 50);
+    for (int i=0;i<15 ;i++ )
+    {
+        for (int j=0;j<5 ;j++ )
+        {
+            if(count1==count)
+                break;
+            else
+            {
+                QPushButton *button = new QPushButton(array[count1]);
+                button->setFixedSize(btnSize);
+                button->setObjectName(array[count1]);
+                connect(button, &QPushButton::clicked, this, &BCMainWindow::cald1);
+                ui->gridLayout_2->addWidget(button,i,j);
+                //lay->addWidget(button,i,j);
+            }
+            count1++;
+        }
+    }
+}
+void BCMainWindow::cald1()
+{
+    QObject *senderObj = sender(); // This will give Sender object
+    QString senderObjName = senderObj->objectName();
+    //qDebug()<< "Button: " << senderObjName;
+    ui->label_45->setText(senderObjName);
+    ui->stackedWidget->setCurrentIndex(7);
+}
+void BCMainWindow::cald2()
+{
+    QObject *senderObj = sender(); // This will give Sender object
+    QString senderObjName = senderObj->objectName();
+    //qDebug()<< "Button: " << senderObjName;
+    ui->lineEdit_24->setText(senderObjName);
+    ui->stackedWidget->setCurrentIndex(8);
+}
+void BCMainWindow::cald3()
+{
+    QObject *senderObj = sender(); // This will give Sender object
+    QString senderObjName = senderObj->objectName();
+    //qDebug()<< "Button: " << senderObjName;
+    ui->lineEdit_64->setText(senderObjName);
+    ui->stackedWidget->setCurrentIndex(9);
+}
+void BCMainWindow::on_toolButton_14_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_Setting_Btn_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(14);
+}
+
+void BCMainWindow::on_Load_Btn_2_clicked()
+{
+    BCMainWindow conn;
+    QSqlQueryModel * modal = new QSqlQueryModel();
+
+    conn.connOpen();
+    QSqlQuery* qry=new QSqlQuery(conn.mydb);
+
+    qry->prepare("select * from tests");
+
+    qry->exec();
+    modal->setQuery(*qry);
+    ui->tableView->setModel(modal);
+
+    conn.connclose();
+    qDebug() << ( modal->rowCount());
+}
+
+
+void BCMainWindow::on_pushButton_2_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(7);
+
+    QSqlQuery query;
+    query.prepare("SELECT name FROM test");
+    query.exec();
+    int count=0;
+    while(query.next())
+    {
+        QString s=query.value(0).toString();
+        array[count]=s;
+        count++;
+        qDebug()<<s;
+    }
+    int count1=0;
+    const QSize btnSize = QSize(150, 50);
+    for (int i=0;i<15 ;i++ )
+    {
+        for (int j=0;j<5 ;j++ )
+        {
+            if(count1==count)
+                break;
+            else
+            {
+                QPushButton *button = new QPushButton(array[count1]);
+                button->setFixedSize(btnSize);
+                button->setObjectName(array[count1]);
+                connect(button, &QPushButton::clicked, this, &BCMainWindow::cald2);
+                ui->gridLayout_6->addWidget(button,i,j);
+                //lay->addWidget(button,i,j);
+            }
+            count1++;
+        }
+    }
+}
+
+void BCMainWindow::on_Update_Btn_clicked()
+{
+    BCMainWindow conn;
+    QString name, unit;
+
+    if(!conn.connOpen())
+    {
+        qDebug()<<"failed to open the database";
+        return;
+    }
+
+    conn.connOpen();
+    QSqlQuery qry;
+    qry.prepare("update test set name='"+name+"',unit='"+unit+"' where name='"+name+"'");
+    if(qry.exec())
+    {
+        QMessageBox::information(this,tr("Update"),tr("Updated"));
+        conn.connclose();
+        ui->gridLayout->update();
+        ui->stackedWidget->setCurrentIndex(2);
+    }
+    else
+    {
+        QMessageBox::critical(this,tr("error::"),qry.lastError().text());
+    }
+
+
+}
+
+void BCMainWindow::on_Delete_Btn_clicked()
+{
+    BCMainWindow conn;
+    QString name;
+    name=ui->lineEdit_64->text();
+    if(!conn.connOpen())
+    {
+        qDebug()<<"failed to open the database";
+        return;
+    }
+    conn.connOpen();
+    QSqlQuery qry;
+    qry.prepare("Delete from test where name='"+name+"'");
+
+    if(qry.exec())
+    {
+        QMessageBox::information(this,tr("Delete"),tr("Delete"));
+        conn.connclose();
+        ui->gridLayout->update();
+        ui->tableView->update();
+        ui->gridLayout_2->update();
+        ui->gridLayout_6->update();
+        ui->gridLayout_8->update();
+        ui->stackedWidget->setCurrentIndex(2);
+    }
+    else
+    {
+        QMessageBox::critical(this,tr("error::"),qry.lastError().text());
+    }
+}
+
+void BCMainWindow::on_Home_Btn_7_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_Home_Btn_8_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_pushButton_17_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_17->text());
+}
+
+
+void BCMainWindow::on_pushButton_13_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_13->text());
+}
+
+void BCMainWindow::on_pushButton_14_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_14->text());
+
+}
+
+void BCMainWindow::on_pushButton_12_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(14);
+}
+
+void BCMainWindow::on_pushButton_47_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(2);
+}
+
+void BCMainWindow::on_pushButton_71_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(2);
+}
+
+void BCMainWindow::on_pushButton_46_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(1);
+}
+
+void BCMainWindow::on_pushButton_56_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_pushButton_18_clicked()
+{
+    QString text=ui->lineEdit->text();
+
+    if(opt==1)
+    {
+        ui->PatientInfo_LineEdit->setText(text);
+        ui->stackedWidget->setCurrentIndex(2);
+    }
+    else if(opt==2)
+    {
+        ui->lineEdit_4->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==3)
+    {
+        ui->lineEdit_5->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==4)
+    {
+        ui->lineEdit_6->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==5)
+    {
+        ui->lineEdit_7->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==6)
+    {
+        ui->lineEdit_8->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==7)
+    {
+        ui->lineEdit_22->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==8)
+    {
+        ui->lineEdit_9->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==9)
+    {
+        ui->lineEdit_10->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==10)
+    {
+        ui->lineEdit_12->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==11)
+    {
+        ui->lineEdit_11->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==12)
+    {
+        ui->lineEdit_13->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==13)
+    {
+        ui->lineEdit_15->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==14)
+    {
+        ui->lineEdit_18->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==15)
+    {
+        ui->lineEdit_17->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==16)
+    {
+        ui->lineEdit_14->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==17)
+    {
+        ui->lineEdit_16->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==18)
+    {
+        ui->lineEdit_19->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==19)
+    {
+        ui->lineEdit_20->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==20)
+    {
+        ui->lineEdit_21->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==21)
+    {
+        ui->lineEdit_23->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==22)
+    {
+        ui->lineEdit_26->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==23)
+    {
+        ui->lineEdit_25->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==24)
+    {
+        ui->lineEdit_28->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==25)
+    {
+        ui->lineEdit_29->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==26)
+    {
+        ui->lineEdit_24->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==27)
+    {
+        ui->lineEdit_27->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==28)
+    {
+        ui->lineEdit_30->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==29)
+    {
+        ui->lineEdit_31->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==30)
+    {
+        ui->lineEdit_32->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==31)
+    {
+        ui->lineEdit_37->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==32)
+    {
+        ui->lineEdit_33->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==33)
+    {
+        ui->lineEdit_34->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==34)
+    {
+        ui->lineEdit_36->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==35)
+    {
+        ui->lineEdit_35->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==36)
+    {
+        ui->lineEdit_38->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==37)
+    {
+        ui->lineEdit_40->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==38)
+    {
+        ui->lineEdit_55->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==39)
+    {
+        ui->lineEdit_54->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==40)
+    {
+        ui->lineEdit_39->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==41)
+    {
+        ui->lineEdit_41->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==42)
+    {
+        ui->lineEdit_56->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==43)
+    {
+        ui->lineEdit_57->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==44)
+    {
+        ui->lineEdit_58->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==45)
+    {
+        ui->lineEdit_59->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==46)
+    {
+        ui->lineEdit_60->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==47)
+    {
+        ui->lineEdit_61->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==48)
+    {
+        ui->lineEdit_62->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==49)
+    {
+        ui->lineEdit_63->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==50)
+    {
+        ui->lineEdit_64->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==51)
+    {
+        ui->lineEdit_65->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+
+    }
+    else if(opt==52)
+    {
+        ui->lineEdit_66->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==53)
+    {
+        ui->lineEdit_67->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==54)
+    {
+        ui->lineEdit_68->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==55)
+    {
+        ui->lineEdit_73->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==56)
+    {
+        ui->lineEdit_69->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==57)
+    {
+        ui->lineEdit_70->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==58)
+    {
+        ui->lineEdit_72->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==59)
+    {
+        ui->lineEdit_71->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==60)
+    {
+        ui->lineEdit_74->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==61)
+    {
+        ui->lineEdit_76->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==62)
+    {
+        ui->lineEdit_79->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==63)
+    {
+        ui->lineEdit_78->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==64)
+    {
+        ui->lineEdit_75->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==65)
+    {
+        ui->lineEdit_77->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==66)
+    {
+        ui->lineEdit_80->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==67)
+    {
+        ui->lineEdit_81->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==68)
+    {
+        ui->lineEdit_82->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==69)
+    {
+        ui->lineEdit_83->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==70)
+    {
+        ui->lineEdit_84->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==71)
+    {
+        ui->lineEdit_85->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==72)
+    {
+        ui->lineEdit_86->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==73)
+    {
+        ui->lineEdit_87->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==74)
+    {
+        ui->lineEdit_42->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==75)
+    {
+        ui->lineEdit_45->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==76)
+    {
+        ui->lineEdit_47->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==77)
+    {
+        ui->lineEdit_43->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==78)
+    {
+        ui->lineEdit_44->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==79)
+    {
+        ui->lineEdit_46->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==80)
+    {
+        ui->lineEdit_48->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==81)
+    {
+        ui->lineEdit_51->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==82)
+    {
+        ui->lineEdit_53->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==83)
+    {
+        ui->lineEdit_49->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==84)
+    {
+        ui->lineEdit_50->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==85)
+    {
+        ui->lineEdit_52->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+
+    else if(opt==86)
+    {
+        ui->PatientInfo_LineEdit_2->setText(text);
+        ui->stackedWidget->setCurrentIndex(3);
+    }
+
+    else if(opt==87)
+    {
+        ui->PatientInfo_LineEdit_3->setText(text);
+        ui->stackedWidget->setCurrentIndex(4);
+    }
+
+}
+
+void BCMainWindow::on_pushButton_15_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_15->text());
+}
+
+void BCMainWindow::on_pushButton_22_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_22->text());
+}
+
+void BCMainWindow::on_pushButton_37_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_37->text());
+}
+
+void BCMainWindow::on_pushButton_36_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_36->text());
+}
+
+void BCMainWindow::on_pushButton_35_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_35->text());
+}
+
+void BCMainWindow::on_pushButton_34_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_34->text());
+}
+
+void BCMainWindow::on_pushButton_33_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_33->text());
+}
+
+void BCMainWindow::on_pushButton_29_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_29->text());
+}
+
+void BCMainWindow::on_pushButton_27_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_27->text());
+}
+
+void BCMainWindow::on_pushButton_21_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_21->text());
+}
+
+void BCMainWindow::on_pushButton_31_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_31->text());
+}
+
+void BCMainWindow::on_pushButton_41_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_41->text());
+}
+
+void BCMainWindow::on_pushButton_19_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_19->text());
+}
+
+void BCMainWindow::on_pushButton_32_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_32->text());
+}
+
+void BCMainWindow::on_pushButton_20_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_20->text());
+}
+
+void BCMainWindow::on_pushButton_30_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_30->text());
+}
+
+void BCMainWindow::on_pushButton_28_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_28->text());
+}
+
+void BCMainWindow::on_pushButton_40_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_40->text());
+}
+
+void BCMainWindow::on_pushButton_39_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_39->text());
+}
+
+void BCMainWindow::on_pushButton_38_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_38->text());
+}
+
+void BCMainWindow::on_pushButton_42_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_42->text());
+}
+
+void BCMainWindow::on_pushButton_43_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_43->text());
+}
+
+void BCMainWindow::on_pushButton_16_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_16->text());
+}
+
+void BCMainWindow::on_pushButton_44_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_44->text());
+}
+
+void BCMainWindow::on_pushButton_49_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_49->text());
+}
+
+void BCMainWindow::on_pushButton_48_clicked()
+{
+
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_48->text());
+}
+
+void BCMainWindow::on_pushButton_67_clicked()
+{
+    QString text=ui->lineEdit->text();
+
+    if(opt==1)
+    {
+        ui->PatientInfo_LineEdit->setText(text);
+        ui->stackedWidget->setCurrentIndex(2);
+    }
+    else if(opt==2)
+    {
+        ui->lineEdit_4->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==3)
+    {
+        ui->lineEdit_5->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==4)
+    {
+        ui->lineEdit_6->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==5)
+    {
+        ui->lineEdit_7->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==6)
+    {
+        ui->lineEdit_8->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==7)
+    {
+        ui->lineEdit_22->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==8)
+    {
+        ui->lineEdit_9->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==9)
+    {
+        ui->lineEdit_10->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==10)
+    {
+        ui->lineEdit_12->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==11)
+    {
+        ui->lineEdit_11->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==12)
+    {
+        ui->lineEdit_13->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==13)
+    {
+        ui->lineEdit_15->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==14)
+    {
+        ui->lineEdit_18->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==15)
+    {
+        ui->lineEdit_17->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==16)
+    {
+        ui->lineEdit_14->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==17)
+    {
+        ui->lineEdit_16->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==18)
+    {
+        ui->lineEdit_19->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==19)
+    {
+        ui->lineEdit_20->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==20)
+    {
+        ui->lineEdit_21->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==21)
+    {
+        ui->lineEdit_23->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==22)
+    {
+        ui->lineEdit_26->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==23)
+    {
+        ui->lineEdit_25->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==24)
+    {
+        ui->lineEdit_28->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==25)
+    {
+        ui->lineEdit_29->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==26)
+    {
+        ui->lineEdit_24->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==27)
+    {
+        ui->lineEdit_27->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==28)
+    {
+        ui->lineEdit_30->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==29)
+    {
+        ui->lineEdit_31->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==30)
+    {
+        ui->lineEdit_32->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==31)
+    {
+        ui->lineEdit_37->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==32)
+    {
+        ui->lineEdit_33->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==33)
+    {
+        ui->lineEdit_34->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==34)
+    {
+        ui->lineEdit_36->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==35)
+    {
+        ui->lineEdit_35->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==36)
+    {
+        ui->lineEdit_38->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==37)
+    {
+        ui->lineEdit_40->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==38)
+    {
+        ui->lineEdit_55->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==39)
+    {
+        ui->lineEdit_54->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==40)
+    {
+        ui->lineEdit_39->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==41)
+    {
+        ui->lineEdit_41->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==42)
+    {
+        ui->lineEdit_56->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==43)
+    {
+        ui->lineEdit_57->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==44)
+    {
+        ui->lineEdit_58->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==45)
+    {
+        ui->lineEdit_59->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==46)
+    {
+        ui->lineEdit_60->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==47)
+    {
+        ui->lineEdit_61->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==48)
+    {
+        ui->lineEdit_62->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==49)
+    {
+        ui->lineEdit_63->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==50)
+    {
+        ui->lineEdit_64->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==51)
+    {
+        ui->lineEdit_65->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+
+    }
+    else if(opt==52)
+    {
+        ui->lineEdit_66->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==53)
+    {
+        ui->lineEdit_67->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==54)
+    {
+        ui->lineEdit_68->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==55)
+    {
+        ui->lineEdit_73->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==56)
+    {
+        ui->lineEdit_69->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==57)
+    {
+        ui->lineEdit_70->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==58)
+    {
+        ui->lineEdit_72->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==59)
+    {
+        ui->lineEdit_71->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==60)
+    {
+        ui->lineEdit_74->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==61)
+    {
+        ui->lineEdit_76->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==62)
+    {
+        ui->lineEdit_79->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==63)
+    {
+        ui->lineEdit_78->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==64)
+    {
+        ui->lineEdit_75->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==65)
+    {
+        ui->lineEdit_77->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==66)
+    {
+        ui->lineEdit_80->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==67)
+    {
+        ui->lineEdit_81->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==68)
+    {
+        ui->lineEdit_82->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==69)
+    {
+        ui->lineEdit_83->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==70)
+    {
+        ui->lineEdit_84->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==71)
+    {
+        ui->lineEdit_85->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==72)
+    {
+        ui->lineEdit_86->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==73)
+    {
+        ui->lineEdit_87->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==74)
+    {
+        ui->lineEdit_42->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==75)
+    {
+        ui->lineEdit_45->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==76)
+    {
+        ui->lineEdit_47->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==77)
+    {
+        ui->lineEdit_43->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==78)
+    {
+        ui->lineEdit_44->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==79)
+    {
+        ui->lineEdit_46->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==80)
+    {
+        ui->lineEdit_48->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==81)
+    {
+        ui->lineEdit_51->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==82)
+    {
+        ui->lineEdit_53->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==83)
+    {
+        ui->lineEdit_49->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==84)
+    {
+        ui->lineEdit_50->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==85)
+    {
+        ui->lineEdit_52->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==86)
+    {
+        ui->PatientInfo_LineEdit_2->setText(text);
+        ui->stackedWidget->setCurrentIndex(3);
+    }
+
+    else if(opt==87)
+    {
+        ui->PatientInfo_LineEdit_3->setText(text);
+        ui->stackedWidget->setCurrentIndex(4);
+    }
+}
+
+void BCMainWindow::on_pushButton_93_clicked()
+{
+    QString text=ui->lineEdit->text();
+
+    if(opt==1)
+    {
+        ui->PatientInfo_LineEdit->setText(text);
+        ui->stackedWidget->setCurrentIndex(2);
+    }
+    else if(opt==2)
+    {
+        ui->lineEdit_4->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==3)
+    {
+        ui->lineEdit_5->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==4)
+    {
+        ui->lineEdit_6->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==5)
+    {
+        ui->lineEdit_7->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==6)
+    {
+        ui->lineEdit_8->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==7)
+    {
+        ui->lineEdit_22->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==8)
+    {
+        ui->lineEdit_9->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==9)
+    {
+        ui->lineEdit_10->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==10)
+    {
+        ui->lineEdit_12->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==11)
+    {
+        ui->lineEdit_11->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==12)
+    {
+        ui->lineEdit_13->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==13)
+    {
+        ui->lineEdit_15->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==14)
+    {
+        ui->lineEdit_18->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==15)
+    {
+        ui->lineEdit_17->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==16)
+    {
+        ui->lineEdit_14->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==17)
+    {
+        ui->lineEdit_16->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==18)
+    {
+        ui->lineEdit_19->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==19)
+    {
+        ui->lineEdit_20->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==20)
+    {
+        ui->lineEdit_21->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==21)
+    {
+        ui->lineEdit_23->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==22)
+    {
+        ui->lineEdit_26->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==23)
+    {
+        ui->lineEdit_25->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==24)
+    {
+        ui->lineEdit_28->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==25)
+    {
+        ui->lineEdit_29->setText(text);
+        ui->stackedWidget->setCurrentIndex(6);
+    }
+    else if(opt==26)
+    {
+        ui->lineEdit_24->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==27)
+    {
+        ui->lineEdit_27->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==28)
+    {
+        ui->lineEdit_30->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==29)
+    {
+        ui->lineEdit_31->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==30)
+    {
+        ui->lineEdit_32->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==31)
+    {
+        ui->lineEdit_37->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==32)
+    {
+        ui->lineEdit_33->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==33)
+    {
+        ui->lineEdit_34->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==34)
+    {
+        ui->lineEdit_36->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==35)
+    {
+        ui->lineEdit_35->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==36)
+    {
+        ui->lineEdit_38->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==37)
+    {
+        ui->lineEdit_40->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==38)
+    {
+        ui->lineEdit_55->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==39)
+    {
+        ui->lineEdit_54->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==40)
+    {
+        ui->lineEdit_39->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==41)
+    {
+        ui->lineEdit_41->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==42)
+    {
+        ui->lineEdit_56->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==43)
+    {
+        ui->lineEdit_57->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==44)
+    {
+        ui->lineEdit_58->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==45)
+    {
+        ui->lineEdit_59->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==46)
+    {
+        ui->lineEdit_60->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==47)
+    {
+        ui->lineEdit_61->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==48)
+    {
+        ui->lineEdit_62->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==49)
+    {
+        ui->lineEdit_63->setText(text);
+        ui->stackedWidget->setCurrentIndex(8);
+    }
+    else if(opt==50)
+    {
+        ui->lineEdit_64->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==51)
+    {
+        ui->lineEdit_65->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+
+    }
+    else if(opt==52)
+    {
+        ui->lineEdit_66->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==53)
+    {
+        ui->lineEdit_67->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==54)
+    {
+        ui->lineEdit_68->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==55)
+    {
+        ui->lineEdit_73->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==56)
+    {
+        ui->lineEdit_69->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==57)
+    {
+        ui->lineEdit_70->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==58)
+    {
+        ui->lineEdit_72->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==59)
+    {
+        ui->lineEdit_71->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==60)
+    {
+        ui->lineEdit_74->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==61)
+    {
+        ui->lineEdit_76->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==62)
+    {
+        ui->lineEdit_79->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==63)
+    {
+        ui->lineEdit_78->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==64)
+    {
+        ui->lineEdit_75->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==65)
+    {
+        ui->lineEdit_77->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==66)
+    {
+        ui->lineEdit_80->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==67)
+    {
+        ui->lineEdit_81->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==68)
+    {
+        ui->lineEdit_82->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==69)
+    {
+        ui->lineEdit_83->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==70)
+    {
+        ui->lineEdit_84->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==71)
+    {
+        ui->lineEdit_85->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==72)
+    {
+        ui->lineEdit_86->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==73)
+    {
+        ui->lineEdit_87->setText(text);
+        ui->stackedWidget->setCurrentIndex(10);
+    }
+    else if(opt==74)
+    {
+        ui->lineEdit_42->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==75)
+    {
+        ui->lineEdit_45->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==76)
+    {
+        ui->lineEdit_47->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==77)
+    {
+        ui->lineEdit_43->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==78)
+    {
+        ui->lineEdit_44->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==79)
+    {
+        ui->lineEdit_46->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==80)
+    {
+        ui->lineEdit_48->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==81)
+    {
+        ui->lineEdit_51->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==82)
+    {
+        ui->lineEdit_53->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==83)
+    {
+        ui->lineEdit_49->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==84)
+    {
+        ui->lineEdit_50->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+    else if(opt==85)
+    {
+        ui->lineEdit_52->setText(text);
+        ui->stackedWidget->setCurrentIndex(12);
+    }
+
+    else if(opt==86)
+    {
+        ui->PatientInfo_LineEdit_2->setText(text);
+        ui->stackedWidget->setCurrentIndex(3);
+    }
+
+    else if(opt==87)
+    {
+        ui->PatientInfo_LineEdit_3->setText(text);
+        ui->stackedWidget->setCurrentIndex(4);
+    }
+
+
+}
+
+void BCMainWindow::on_pushButton_45_clicked()
+{
+    ui->lineEdit->backspace();
+}
+
+void BCMainWindow::on_pushButton_50_clicked()
+{
+
+}
+
+void BCMainWindow::on_pushButton_80_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_80->text());
+}
+
+void BCMainWindow::on_pushButton_59_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_59->text());
+}
+
+void BCMainWindow::on_pushButton_81_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_81->text());
+}
+
+void BCMainWindow::on_pushButton_82_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_82->text());
+}
+
+void BCMainWindow::on_pushButton_51_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_51->text());
+}
+
+void BCMainWindow::on_pushButton_55_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_55->text());
+}
+
+void BCMainWindow::on_pushButton_61_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_61->text());
+}
+
+void BCMainWindow::on_pushButton_58_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_58->text());
+}
+
+void BCMainWindow::on_pushButton_79_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_79->text());
+}
+
+void BCMainWindow::on_pushButton_73_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_73->text());
+}
+
+void BCMainWindow::on_pushButton_63_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_63->text());
+}
+
+void BCMainWindow::on_pushButton_66_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_66->text());
+}
+
+void BCMainWindow::on_pushButton_76_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_76->text());
+}
+
+void BCMainWindow::on_pushButton_62_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_62->text());
+}
+
+void BCMainWindow::on_pushButton_77_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_77->text());
+}
+
+void BCMainWindow::on_pushButton_78_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_78->text());
+}
+
+void BCMainWindow::on_pushButton_68_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_68->text());
+}
+
+void BCMainWindow::on_pushButton_52_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_52->text());
+}
+
+void BCMainWindow::on_pushButton_65_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_65->text());
+}
+
+void BCMainWindow::on_pushButton_53_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_53->text());
+}
+
+void BCMainWindow::on_pushButton_75_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_75->text());
+}
+
+void BCMainWindow::on_pushButton_64_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_64->text());
+}
+
+void BCMainWindow::on_pushButton_69_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_69->text());
+}
+
+void BCMainWindow::on_pushButton_74_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_74->text());
+}
+
+void BCMainWindow::on_pushButton_57_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_57->text());
+}
+
+void BCMainWindow::on_pushButton_54_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_54->text());
+}
+
+void BCMainWindow::on_pushButton_70_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_70->text());
+}
+
+void BCMainWindow::on_pushButton_104_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_104->text());
+}
+
+void BCMainWindow::on_pushButton_99_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_99->text());
+}
+
+void BCMainWindow::on_pushButton_107_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_107->text());
+}
+
+void BCMainWindow::on_pushButton_86_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_86->text());
+}
+
+void BCMainWindow::on_pushButton_91_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_91->text());
+}
+
+void BCMainWindow::on_pushButton_101_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_101->text());
+}
+
+void BCMainWindow::on_pushButton_109_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_109->text());
+}
+
+void BCMainWindow::on_pushButton_106_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_106->text());
+}
+
+void BCMainWindow::on_pushButton_96_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_96->text());
+}
+
+void BCMainWindow::on_pushButton_111_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_111->text());
+}
+
+void BCMainWindow::on_pushButton_112_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_112->text());
+}
+
+void BCMainWindow::on_pushButton_97_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_97->text());
+}
+
+void BCMainWindow::on_pushButton_95_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_95->text());
+}
+
+void BCMainWindow::on_pushButton_100_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_100->text());
+}
+
+void BCMainWindow::on_pushButton_85_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_85->text());
+}
+
+void BCMainWindow::on_pushButton_94_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_94->text());
+}
+
+void BCMainWindow::on_pushButton_92_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_92->text());
+}
+
+void BCMainWindow::on_pushButton_83_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_83->text());
+}
+
+void BCMainWindow::on_pushButton_87_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_87->text());
+}
+
+void BCMainWindow::on_pushButton_116_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_116->text());
+}
+
+void BCMainWindow::on_pushButton_110_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_110->text());
+}
+
+void BCMainWindow::on_pushButton_115_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_115->text());
+}
+
+void BCMainWindow::on_pushButton_108_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_108->text());
+}
+
+void BCMainWindow::on_pushButton_102_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_102->text());
+}
+
+void BCMainWindow::on_pushButton_105_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_105->text());
+}
+
+void BCMainWindow::on_pushButton_90_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_90->text());
+}
+
+void BCMainWindow::on_pushButton_98_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_98->text());
+}
+
+void BCMainWindow::on_pushButton_88_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_88->text());
+}
+
+void BCMainWindow::on_pushButton_113_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_113->text());
+}
+
+void BCMainWindow::on_pushButton_84_clicked()
+{
+    ui->lineEdit->setText(ui->lineEdit->text()+ui->pushButton_84->text());
+}
+
+void BCMainWindow::on_pushButton_114_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_pushButton_103_clicked()
+{
+
+}
+
+void BCMainWindow::on_RunBlank_Btn_clicked()
+{
+    double samplingrate=0,cutoff_frequency=0;
+    QSqlQuery query;
+    query.prepare("select samprate, cutoff from tests where sno=1");
+    query.exec();
+    while(query.next())
+    {
+
+        samplingrate=query.value(0).toDouble();
+        cutoff_frequency=query.value(1).toDouble();
+
+    }
+
+    qDebug()<<samplingrate;
+    qDebug()<<cutoff_frequency;
+
+    QThread::sleep(1);
+    const int order = 2; // 4th order (=2 biquads)
+    Iir::Butterworth::LowPass<order> fwave;
+    //const float samplingrate = 1500; // Hz
+    //const float cutoff_frequency = 4; // Hz
+    fwave.setup (samplingrate, cutoff_frequency);
+
+    QString name, unit;
+    unsigned int wavelength =0, blank =0;
+    QSqlQuery qry;
+    qry.prepare("select wave, blnk from test where name='"+name+"'");
+    qry.exec();
+    {
+        wavelength=qry.value(0).toUInt();
+        blank=qry.value(1).toUInt();
+    }
+    qDebug()<<wavelength;
+    qDebug()<<
+    //int wavelength=0;
+    //wavelength=ui->comboBox->currentIndex();
+    //qDebug()<<wavelength;
+   // int blank[200];
+    digitalWrite (LED_BASE + 6-wavelength,HIGH) ;
+    QThread::msleep(200);
+    for(int i=0;i<3;i++)
+    {
+        for(int i=0;i<200;i++)
+        {
+            blank=readadc(wavelength);
+            QThread::msleep(1);
+            filtwave[i]=fwave.filter(blank);
+
+        }
+
+
+        //QThread::msleep(200);
+
+        QThread::msleep(10);
+        for(int i=100;i<200;i++)
+        {
+            filtwave[0]+=filtwave[i];
+
+        }
+
+    }
+    digitalWrite (LED_BASE + 6-wavelength,LOW) ;
+    filtwave[0]=filtwave[0]/100;
+
+    ui->label->setNum(filtwave[0]);
+
+}
+
+void BCMainWindow::addPoint(double x, double y)
+{
+    qv_x.append(x);
+    qv_y.append(y);
+    if(y>bc_y_val)
+        bc_y_val=y;
+}
+
+void BCMainWindow::clearData()
+{
+    qv_x.clear();
+    qv_y.clear();
+
+}
+
+void BCMainWindow::plot_end()
+{
+    int samp=ui->lineEdit_10->text().toInt();
+    //ui->customPlot_2->addGraph();
+    ui->customPlot_2->graph(0)->setData(qv_x,qv_y);
+    //ui->customPlot_2->graph(0)->setVisible(false);
+    //ui->customPlot_2->addGraph();
+    // give the axes some labels:
+    ui->customPlot_2->xAxis->setLabel("POINTS");
+    ui->customPlot_2->yAxis->setLabel("OD");
+    // set axes ranges, so we see all data:
+    ui->customPlot_2->xAxis->setRange(0, samp);
+    ui->customPlot_2->yAxis->setRange(-0.5,bc_y_val+1);
+    ui->customPlot_2->replot();
+    ui->customPlot_2->update();
+
+
+}
+
+void BCMainWindow::on_pushButton_89_clicked()
+{
+    ui->lineEdit->backspace();
+}
+
+void BCMainWindow::on_pushButton_60_clicked()
+{
+    ui->lineEdit->backspace();
+}
+
+void BCMainWindow::on_RunSample_Btn_clicked()
+{
+
+}
+
+void BCMainWindow::on_RunCal_Btn_clicked()
+{
+
+}
+
+void BCMainWindow::on_Home_Btn_9_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_Home_Btn_10_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+
+
+void BCMainWindow::on_pushButton_117_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Patient Info");
+    opt=1;
+    ui->lineEdit->setText(ui->PatientInfo_LineEdit->text());
+}
+
+void BCMainWindow::on_pushButton_118_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Test Name");
+    opt=2;
+    ui->lineEdit->setText(ui->lineEdit_4->text());
+}
+
+void BCMainWindow::on_pushButton_119_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Unit");
+    opt=3;
+    ui->lineEdit->setText(ui->lineEdit_5->text());
+}
+
+void BCMainWindow::on_pushButton_123_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Factor");
+    opt=4;
+    ui->lineEdit->setText(ui->lineEdit_6->text());
+}
+
+void BCMainWindow::on_pushButton_124_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Delay Time(S)");
+    opt=5;
+    ui->lineEdit->setText(ui->lineEdit_7->text());
+}
+
+void BCMainWindow::on_pushButton_122_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Read Time(S)");
+    opt=6;
+    ui->lineEdit->setText(ui->lineEdit_8->text());
+}
+
+void BCMainWindow::on_pushButton_121_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Lag Time(S)");
+    opt=7;
+    ui->lineEdit->setText(ui->lineEdit_22->text());
+}
+
+void BCMainWindow::on_pushButton_120_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Linear Range(Min)");
+    opt=8;
+    ui->lineEdit->setText(ui->lineEdit_9->text());
+}
+
+void BCMainWindow::on_pushButton_125_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Linear Range(Max)");
+    opt=9;
+    ui->lineEdit->setText(ui->lineEdit_10->text());
+}
+
+void BCMainWindow::on_pushButton_126_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Normal Range(Min)");
+    opt=10;
+    ui->lineEdit->setText(ui->lineEdit_12->text());
+}
+
+void BCMainWindow::on_pushButton_127_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Normal Range(Max)");
+    opt=11;
+    ui->lineEdit->setText(ui->lineEdit_11->text());
+}
+
+void BCMainWindow::on_pushButton_128_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(1)");
+    opt=12;
+    ui->lineEdit->setText(ui->lineEdit_13->text());
+}
+
+void BCMainWindow::on_pushButton_129_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(3)");
+    opt=13;
+    ui->lineEdit->setText(ui->lineEdit_15->text());
+}
+
+void BCMainWindow::on_pushButton_132_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(5)");
+    opt=14;
+    ui->lineEdit->setText(ui->lineEdit_18->text());
+}
+
+void BCMainWindow::on_pushButton_133_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(7)");
+    opt=15;
+    ui->lineEdit->setText(ui->lineEdit_17->text());
+}
+
+void BCMainWindow::on_pushButton_134_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(2)");
+    opt=16;
+    ui->lineEdit->setText(ui->lineEdit_14->text());
+}
+
+void BCMainWindow::on_pushButton_135_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(4)");
+    opt=17;
+    ui->lineEdit->setText(ui->lineEdit_16->text());
+}
+
+void BCMainWindow::on_pushButton_130_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(6)");
+    opt=18;
+    ui->lineEdit->setText(ui->lineEdit_19->text());
+}
+
+void BCMainWindow::on_pushButton_131_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(8)");
+    opt=19;
+    ui->lineEdit->setText(ui->lineEdit_20->text());
+}
+
+void BCMainWindow::on_pushButton_136_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control 1 - Average");
+    opt=20;
+    ui->lineEdit->setText(ui->lineEdit_21->text());
+}
+
+void BCMainWindow::on_pushButton_137_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control 1 - Minimum");
+    opt=21;
+    ui->lineEdit->setText(ui->lineEdit_23->text());
+}
+
+void BCMainWindow::on_pushButton_138_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control 1 - Batch No");
+    opt=22;
+    ui->lineEdit->setText(ui->lineEdit_26->text());
+}
+
+void BCMainWindow::on_pushButton_139_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control 2 - Average");
+    opt=23;
+    ui->lineEdit->setText(ui->lineEdit_25->text());
+}
+
+void BCMainWindow::on_pushButton_140_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control 2 - Minimum");
+    opt=24;
+    ui->lineEdit->setText(ui->lineEdit_28->text());
+}
+
+void BCMainWindow::on_pushButton_141_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control 2 - Batch No");
+    opt=25;
+    ui->lineEdit->setText(ui->lineEdit_29->text());
+}
+
+void BCMainWindow::on_pushButton_142_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Test Name");
+    opt=26;
+    ui->lineEdit->setText(ui->lineEdit_24->text());
+}
+
+void BCMainWindow::on_pushButton_147_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Unit");
+    opt=27;
+    ui->lineEdit->setText(ui->lineEdit_27->text());
+}
+
+void BCMainWindow::on_pushButton_143_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Factor");
+    opt=28;
+    ui->lineEdit->setText(ui->lineEdit_30->text());
+}
+
+void BCMainWindow::on_pushButton_148_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Delay Time(S)");
+    opt=29;
+    ui->lineEdit->setText(ui->lineEdit_31->text());
+}
+
+void BCMainWindow::on_pushButton_149_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Read Time(S)");
+    opt=30;
+    ui->lineEdit->setText(ui->lineEdit_32->text());
+}
+
+void BCMainWindow::on_pushButton_150_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Lag Time(S)");
+    opt=31;
+    ui->lineEdit->setText(ui->lineEdit_37->text());
+}
+
+void BCMainWindow::on_pushButton_145_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Linear Range(Min)");
+    opt=32;
+    ui->lineEdit->setText(ui->lineEdit_33->text());
+}
+
+void BCMainWindow::on_pushButton_144_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Linear Range(Max)");
+    opt=33;
+    ui->lineEdit->setText(ui->lineEdit_34->text());
+}
+
+void BCMainWindow::on_pushButton_146_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Normal Range(Min)");
+    opt=34;
+    ui->lineEdit->setText(ui->lineEdit_36->text());
+}
+
+void BCMainWindow::on_pushButton_201_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Normal Range(Max)");
+    opt=35;
+    ui->lineEdit->setText(ui->lineEdit_35->text());
+}
+
+void BCMainWindow::on_pushButton_151_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(1)");
+    opt=36;
+    ui->lineEdit->setText(ui->lineEdit_38->text());
+}
+
+void BCMainWindow::on_pushButton_158_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(3)");
+    opt=37;
+    ui->lineEdit->setText(ui->lineEdit_40->text());
+}
+
+void BCMainWindow::on_pushButton_153_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(5)");
+    opt=38;
+    ui->lineEdit->setText(ui->lineEdit_55->text());
+}
+
+void BCMainWindow::on_pushButton_155_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(7)");
+    opt=39;
+    ui->lineEdit->setText(ui->lineEdit_54->text());
+}
+
+void BCMainWindow::on_pushButton_157_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(2)");
+    opt=40;
+    ui->lineEdit->setText(ui->lineEdit_39->text());
+}
+
+void BCMainWindow::on_pushButton_152_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(4)");
+    opt=41;
+    ui->lineEdit->setText(ui->lineEdit_41->text());
+}
+
+void BCMainWindow::on_pushButton_154_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(6)");
+    opt=42;
+    ui->lineEdit->setText(ui->lineEdit_56->text());
+}
+
+void BCMainWindow::on_pushButton_156_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(8)");
+    opt=43;
+    ui->lineEdit->setText(ui->lineEdit_57->text());
+}
+
+void BCMainWindow::on_pushButton_159_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control1 - Average");
+    opt=44;
+    ui->lineEdit->setText(ui->lineEdit_58->text());
+}
+
+void BCMainWindow::on_pushButton_160_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control1 - Minimum");
+    opt=45;
+    ui->lineEdit->setText(ui->lineEdit_59->text());
+}
+
+void BCMainWindow::on_pushButton_161_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control1 - Batch No");
+    opt=46;
+    ui->lineEdit->setText(ui->lineEdit_60->text());
+}
+
+void BCMainWindow::on_pushButton_162_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control2 - Average");
+    opt=47;
+    ui->lineEdit->setText(ui->lineEdit_61->text());
+}
+
+void BCMainWindow::on_pushButton_163_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control2 - Minimum");
+    opt=48;
+    ui->lineEdit->setText(ui->lineEdit_62->text());
+}
+
+void BCMainWindow::on_pushButton_164_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control2 - Batch No");
+    opt=49;
+    ui->lineEdit->setText(ui->lineEdit_63->text());
+}
+
+
+void BCMainWindow::on_pushButton_165_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Test Name");
+    opt=50;
+    ui->lineEdit->setText(ui->lineEdit_64->text());
+}
+
+void BCMainWindow::on_pushButton_166_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Unit");
+    opt=51;
+    ui->lineEdit->setText(ui->lineEdit_65->text());
+}
+
+void BCMainWindow::on_pushButton_167_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Factor");
+    opt=52;
+    ui->lineEdit->setText(ui->lineEdit_66->text());
+}
+
+void BCMainWindow::on_pushButton_174_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Delay Time(S)");
+    opt=53;
+    ui->lineEdit->setText(ui->lineEdit_67->text());
+}
+
+void BCMainWindow::on_pushButton_170_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Read Time(S)");
+    opt=54;
+    ui->lineEdit->setText(ui->lineEdit_68->text());
+}
+
+void BCMainWindow::on_pushButton_171_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Lag Time(S)");
+    opt=55;
+    ui->lineEdit->setText(ui->lineEdit_73->text());
+}
+
+void BCMainWindow::on_pushButton_172_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Linear Range(Min)");
+    opt=56;
+    ui->lineEdit->setText(ui->lineEdit_69->text());
+}
+
+void BCMainWindow::on_pushButton_169_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Linear Range(Max)");
+    opt=57;
+    ui->lineEdit->setText(ui->lineEdit_70->text());
+}
+
+void BCMainWindow::on_pushButton_173_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Normal Range(Min)");
+    opt=58;
+    ui->lineEdit->setText(ui->lineEdit_72->text());
+}
+
+void BCMainWindow::on_pushButton_168_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Normal Range(Max)");
+    opt=59;
+    ui->lineEdit->setText(ui->lineEdit_71->text());
+}
+
+void BCMainWindow::on_pushButton_175_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(1)");
+    opt=60;
+    ui->lineEdit->setText(ui->lineEdit_74->text());
+}
+
+void BCMainWindow::on_pushButton_176_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(3)");
+    opt=61;
+    ui->lineEdit->setText(ui->lineEdit_76->text());
+}
+
+void BCMainWindow::on_pushButton_179_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(5)");
+    opt=62;
+    ui->lineEdit->setText(ui->lineEdit_79->text());
+}
+
+void BCMainWindow::on_pushButton_181_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(7)");
+    opt=63;
+    ui->lineEdit->setText(ui->lineEdit_78->text());
+}
+
+void BCMainWindow::on_pushButton_177_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(2)");
+    opt=64;
+    ui->lineEdit->setText(ui->lineEdit_75->text());
+}
+
+void BCMainWindow::on_pushButton_182_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(4)");
+    opt=65;
+    ui->lineEdit->setText(ui->lineEdit_77->text());
+}
+
+void BCMainWindow::on_pushButton_178_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(6)");
+    opt=66;
+    ui->lineEdit->setText(ui->lineEdit_80->text());
+}
+
+void BCMainWindow::on_pushButton_180_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Standard Concentration(8)");
+    opt=67;
+    ui->lineEdit->setText(ui->lineEdit_81->text());
+}
+
+void BCMainWindow::on_pushButton_183_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control1 - Average");
+    opt=68;
+    ui->lineEdit->setText(ui->lineEdit_82->text());
+}
+
+void BCMainWindow::on_pushButton_184_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control1 - Minimum");
+    opt=69;
+    ui->lineEdit->setText(ui->lineEdit_83->text());
+}
+
+void BCMainWindow::on_pushButton_185_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control1 - Batch No");
+    opt=70;
+    ui->lineEdit->setText(ui->lineEdit_84->text());
+}
+
+void BCMainWindow::on_pushButton_186_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control2 - Average");
+    opt=71;
+    ui->lineEdit->setText(ui->lineEdit_85->text());
+}
+
+void BCMainWindow::on_pushButton_187_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control2 - Minimum");
+    opt=72;
+    ui->lineEdit->setText(ui->lineEdit_86->text());
+}
+
+void BCMainWindow::on_pushButton_188_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control2 - Batch No");
+    opt=73;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+
+void BCMainWindow::on_pushButton_189_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control1 - X(1)");
+    opt=74;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+void BCMainWindow::on_pushButton_194_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control1 - SD(1)");
+    opt=75;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+void BCMainWindow::on_pushButton_193_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control1 - CV(1)");
+    opt=76;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+void BCMainWindow::on_pushButton_190_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control1 - X(2)");
+    opt=77;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+void BCMainWindow::on_pushButton_191_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control1 - SD(2)");
+    opt=78;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+void BCMainWindow::on_pushButton_192_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control1 - CV(2))");
+    opt=79;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+void BCMainWindow::on_pushButton_195_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control2 - X(1)");
+    opt=80;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+void BCMainWindow::on_pushButton_199_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control2 - SD(1)");
+    opt=81;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+void BCMainWindow::on_pushButton_200_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control2 - CV(1)");
+    opt=82;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+void BCMainWindow::on_pushButton_198_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control2 - X(2)");
+    opt=83;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+void BCMainWindow::on_pushButton_197_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control2 - SD(2)");
+    opt=84;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+void BCMainWindow::on_pushButton_196_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Control2 - CV(2)");
+    opt=85;
+    ui->lineEdit->setText(ui->lineEdit_87->text());
+}
+
+void BCMainWindow::on_pushButton_202_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Patient Info");
+    opt=86;
+    ui->lineEdit->setText(ui->PatientInfo_LineEdit_2->text());
+}
+
+void BCMainWindow::on_pushButton_203_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(15);
+    ui->label_4->setText("Patient Info");
+    opt=87;
+    ui->lineEdit->setText(ui->PatientInfo_LineEdit_3->text());
+}
+
+
+int BCMainWindow::readadc( int pin)
+{
+    //    for reading channel 0
+    //    unsigned char data[3]={0x06,0x00,0x00};
+    //    wiringPiSPIDataRW(0,data,3);
+    //    int adcValue=(data[1]&15)<<8|data[2];
+    //    return adcValue;
+
+    //for reading channel by number in Binary
+    //     unsigned char buff[] = {static_cast<char>(0b110 | ((pin & 0b111) >> 2)),
+    //                              static_cast<char>((pin & 0b111) << 6),
+    //                              static_cast<char>(0)};
+
+    //      wiringPiSPIDataRW(SPI_CHAN, buff, 3);
+    //      return ((buff[1] & 0b1111) << 8) | buff[2];
+
+    //for reading channel by number in hexadecimal
+    unsigned char buff[] = {static_cast<char>(0x6 | ((pin & 0x7) >> 2)),
+                            static_cast<char>((pin & 0x7) << 6),
+                            static_cast<char>(0)};
+
+    wiringPiSPIDataRW(SPI_CHAN, buff, 3);
+    return ((buff[1] & 0xf) << 8) | buff[2];
+}
+
+void BCMainWindow::on_Home_Btn_11_clicked()
+{
+        ui->stackedWidget->setCurrentIndex(0);
+}
+
+void BCMainWindow::on_Home_Btn_12_clicked()
+{
+        ui->stackedWidget->setCurrentIndex(0);
+}
