@@ -2,11 +2,10 @@
 #include "ui_bcmainwindow.h"
 static QString array[100]={""};
 
-
 void BCMainWindow::on_QC_Btn_4_clicked()
 {
     ui->stackedWidget->setCurrentIndex(9);
-
+    ui->tabWidget_3->setCurrentIndex(0);
     QSqlQuery query;
     query.prepare("SELECT name FROM test");
     query.exec();
@@ -33,7 +32,6 @@ void BCMainWindow::on_QC_Btn_4_clicked()
                 button->setObjectName(array[count1]);
                 connect(button, &QPushButton::clicked, this, &BCMainWindow::cald1);
                 ui->gridLayout_2->addWidget(button,i,j);
-                //lay->addWidget(button,i,j);
             }
             count1++;
         }
@@ -44,9 +42,8 @@ void BCMainWindow::cald1()
 {
     QObject *senderObj = sender(); // This will give Sender object
     QString senderObjName = senderObj->objectName();
-
     ui->label_45->setText(senderObjName);
     ui->stackedWidget->setCurrentIndex(10);
-}
 
+}
 

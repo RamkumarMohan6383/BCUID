@@ -25,6 +25,21 @@ extern int w700;
 extern double bc_y_val;
 extern double absorbance;
 extern int line;
+extern double ymin;
+extern double ymax;
+extern double start;
+extern double end;
+extern int Enter;
+extern int tot;
+class QString;
+extern QString startval;
+extern QString endval;
+extern QString text;
+extern int Individual;
+extern int Individuals;
+extern int Internal;
+extern int External;
+
 
 #include <QMainWindow>
 #include <wiringPi.h>
@@ -90,6 +105,8 @@ public:
     void clearGraph_two();
     void clearGraph_kinetic();
 
+    int one=0 , two=0 , three=0 , four=0 , five=0 , six =0, seven =0;
+
 public:
 
     QSqlDatabase mydb;
@@ -119,7 +136,23 @@ private slots:
     int readadc(int);
     int reading(int,int);
     void reading1();
-    void calc();
+    void twocalcalc();
+    void twosampcalc();
+    void test();
+    void tested();
+    void Open();
+    void Kineticcalfirstpoint1();
+    void Kineticcalfirstpoint2();
+    void Kineticcalsecondpoint1();
+    void Kineticcalsecondpoint2();
+    void Kineticcalthirdpoint1();
+
+    void Kineticsampfirstpoint1();
+    void Kineticsampfirstpoint2();
+    void Kineticsampsecondpoint1();
+    void Kineticsampsecondpoint2();
+    void Kineticsampthirdpoint1();
+
     void displayResult(QNetworkReply* reply);
     void on_hours_sliderMoved(int position);
     void on_minutes_sliderMoved(int position);
@@ -129,6 +162,7 @@ private slots:
     void cald1();
     void cald2();
     void cald3();
+    void cald4();
     void on_Home_Btn_2_clicked();
     void on_Test_Btn_4_clicked();
     void on_Save_Btn_clicked();
@@ -371,14 +405,14 @@ private slots:
     void on_pushButton_7_clicked();
     void on_pushButton_206_clicked();
     void on_pushButton_205_clicked();
-    int on_Print_Btn_clicked();
+    void on_Print_Btn_clicked();
     void on_pushButton_11_clicked();
     void on_toolButton_18_clicked();
     void on_Power_Btn_2_clicked();
     void on_RunCal_Btn_3_clicked();
     void on_RunCal_Btn_2_clicked();
-    int on_Print_Btn_2_clicked();
-    int on_Print_Btn_3_clicked();
+    void on_Print_Btn_2_clicked();
+    void on_Print_Btn_3_clicked();
     void on_Save_Btn_2_clicked();
     void on_pushButton_172_clicked();
     void on_pushButton_173_clicked();
@@ -421,20 +455,114 @@ private slots:
     void on_toolButton_3_clicked();
     void on_pushButton_131_clicked();
     void on_toolButton_19_clicked();
-    void on_pushButton_132_clicked();
     void on_pushButton_134_clicked();
     void on_pushButton_135_clicked();
-    void LED_OFF();
-    /*void createActionsAndConnections();
 
-    QAction* openAction;
-        QList recentFileActionList;
-        const int maxFileNr;*/
+    void on_LabName_Btn_clicked();
 
+    void on_UserName_Btn_clicked();
 
     void on_pushButton_225_clicked();
 
-    void on_pushButton_226_clicked();
+    void on_pushButton_227_clicked();
+
+    void Wave_LED();
+
+    void on_Export_Data_clicked();
+
+
+
+    void on_toolButton_21_clicked();
+
+
+    int on_pushButton_228_clicked();
+
+    int on_pushButton_229_clicked();
+
+    void on_toolButton_22_clicked();
+
+    void on_toolButton_23_clicked();
+
+    void on_Patient_Name_Btn_clicked();
+
+    void on_Patient_Age_Btn_clicked();
+
+    void on_Patient_Gender_Btn_clicked();
+
+    void on_radioButton_clicked();
+
+    void on_radioButton_2_clicked();
+
+    void on_pushButton_231_clicked();
+
+    void on_pushButton_230_clicked();
+
+    void on_Filter_Btn_clicked();
+
+    void on_Data_Print_Btn_clicked();
+
+    void on_Export_Btn_clicked();
+
+    void on_Filt_TestName_clicked();
+
+    void on_Filt_Sample_Id_clicked();
+
+    void on_pushButton_240_clicked();
+
+    int on_EndPoint_Print_Btn_clicked();
+
+    int on_End_Skip_Btn_clicked();
+
+    int on_Two_Skip_Btn_clicked();
+
+    int on_Kinetic_Skip_Btn_clicked();
+
+    int on_TwoPoint_Print_Btn_clicked();
+
+    int on_Kinetic_Print_Btn_clicked();
+
+    void on_Filt_Date_clicked();
+
+    void on_pushButton_310_clicked();
+
+    void on_Print_All_data_clicked();
+
+    void on_pushButton_311_clicked();
+
+    void on_Export_CSV_clicked();
+
+
+    void on_radioButton_5_clicked();
+
+    void on_radioButton_6_clicked();
+
+    void on_radioButton_7_clicked();
+
+    void on_Export_Pendrive_clicked();
+
+    void on_Home_Btn_11_clicked();
+
+    void on_Print_Individual_Data_clicked();
+
+    void on_comboBox_11_activated(const QString &arg1);
+
+    int on_Print_Individual_Btn_clicked();
+    
+    int on_Print_Individual_Btn_2_clicked();
+
+    void on_Data_Delete_Btn_clicked();
+
+    void on_Print_Individual_Btn_3_clicked();
+
+    void on_Delete_Individual_Btn_clicked();
+
+    void on_comboBox_12_activated(const QString &arg1);
+
+    void on_Data_Select_Delete_clicked();
+
+    void on_radioButton_3_clicked();
+
+    void on_radioButton_4_clicked();
 
 private:
 

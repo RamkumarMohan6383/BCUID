@@ -62,8 +62,8 @@ INCLUDEPATH    += /usr/local/include
 LIBS += -L/usr/local/lib -lwiringPi -liir
 
 RESOURCES += \
-    icons.qrc
+    icons.qrc \
 
-DISTFILES +=
+INCLUDEPATH    += /usr/lib/python3.7
 
 

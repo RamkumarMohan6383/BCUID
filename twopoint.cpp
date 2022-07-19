@@ -21,8 +21,9 @@ void BCMainWindow::on_RunBlank_Btn_2_clicked()
     QString TestName = ui->TestName_Lbl_5->text();
     ui->label->setText("");
     ui->label->setText("");
-    ui->label_120->setText("");
-    ui->label_122->setText("");
+    ui->label_120->setVisible(false);
+    ui->label_122->setVisible(false);
+    ui->label_125->setVisible(false);
     ui->label_204->setText("");
     ui->label_119->setText("");
     ui->label_33->setText("");
@@ -69,6 +70,8 @@ void BCMainWindow::on_RunBlank_Btn_2_clicked()
     Iir::Butterworth::LowPass<order> fwave;
     clearData();
     plot_two_blnk();
+    ymin=absorbance-0.02;
+    ymax=absorbance+0.02;
     QThread::msleep(200);
     for(int i=0;i<=5;i++)
     {
@@ -81,8 +84,8 @@ void BCMainWindow::on_RunBlank_Btn_2_clicked()
         }
         QApplication::processEvents();
     }
-    double od=abs(absorbance);// Blank Od
-    ui->label->setText(QString::number(od, 'f', 3));
+//    double od=abs(absorbance);// Blank Od
+    ui->label->setText(QString::number(absorbance, 'f', 3));
 
     QString Blankval;
     int blnkval = 0;
@@ -104,7 +107,6 @@ void BCMainWindow::on_RunBlank_Btn_2_clicked()
 void BCMainWindow::plot_two_blnk()
 {
     line=4;
-
 }
 
 void BCMainWindow::on_RunCal_Btn_2_clicked()
@@ -124,14 +126,13 @@ void BCMainWindow::on_RunCal_Btn_2_clicked()
     ui->Unit_lineEdit->setVisible(true);
     ui->label_207->setVisible(false);
     ui->label_75->setVisible(false);
-    //ui->label_100->setVisible(true);
     ui->label_34->setVisible(true);
     ui->label_197->setVisible(true);
     ui->label_196->setVisible(true);
     ui->label_76->setVisible(false);
     ui->label_100->setText("Std OD");
-    //ui->label_74->setText("");
-    //ui->label_198->setText("");
+    ui->label_120->setVisible(true);
+    ui->label_122->setVisible(true);
     ui->label_72->setVisible(true);
     ui->label_119->setVisible(true);
     QString wavelength , intensity ;
@@ -190,6 +191,8 @@ void BCMainWindow::on_RunCal_Btn_2_clicked()
     multiFact=mulfact;
     concen=con1;
     bc_y_val=0;
+    ymin=absorbance-0.02;
+    ymax=absorbance+0.02;
     plot_two_calibrate();
     readtimer->start(10000);
 }
@@ -235,23 +238,20 @@ void BCMainWindow::on_RunSample_Btn_2_clicked()
     ui->RunSample_Btn_2->setDisabled(true);
     ui->label_120->setText("");
     ui->label_122->setText("");
-    //ui->label_76->setText("");
+    ui->label_120->setVisible(true);
+    ui->label_122->setVisible(true);
     ui->label_119->setText("");
     ui->label_120->setText("");
     ui->label_203->setVisible(false);
     ui->label_204->setVisible(false);
+
     ui->label_119->setText("");
-    //ui->label_204->setText("");
     ui->label_33->setText("");
     ui->label_33->setVisible(true);
     ui->Unit_lineEdit->setVisible(true);
     ui->label_122->setVisible(true);
     ui->label_207->setVisible(false);
     ui->Save_Btn_3->setEnabled(true);
-    //ui->RunCal_Btn_2->setDisabled(true);
-    //ui->RunBlank_Btn_2->setDisabled(true);
-    //ui->Save_Btn_6->setDisabled(true);
-    //ui->Print_Btn_2->setDisabled(true);
     ui->label_72->setVisible(true);
     ui->label_119->setVisible(true);
 
@@ -311,6 +311,8 @@ void BCMainWindow::on_RunSample_Btn_2_clicked()
     multiFact=mulfact;
     fct=fact;
     bc_y_val=0;
+    ymin=absorbance-0.02;
+    ymax=absorbance+0.02;
     plot_two();
     readtimer->start(10000);
 
@@ -319,14 +321,22 @@ void BCMainWindow::on_RunSample_Btn_2_clicked()
 void BCMainWindow::plot_two()
 {
     line=6;
-
 }
 
-
-int BCMainWindow::on_Print_Btn_2_clicked()
+void BCMainWindow::on_Print_Btn_2_clicked()
 {
+
     ui->Print_Btn_2->setDisabled(true);
-    QApplication::processEvents();
+    ui->stackedWidget->setCurrentIndex(25);
+
+    ui->EndPoint_Print_Btn->setVisible(false);
+    ui->TwoPoint_Print_Btn->setVisible(true);
+    ui->Kinetic_Print_Btn->setVisible(false);
+    ui->End_Skip_Btn->setVisible(false);
+    ui->Two_Skip_Btn->setVisible(true);
+    ui->Kinetic_Skip_Btn->setVisible(false);
+
+    /*QApplication::processEvents();
     timer->stop();
     timer1->stop();
     Printer *p = new Printer();
@@ -340,16 +350,20 @@ int BCMainWindow::on_Print_Btn_2_clicked()
     p->reset();
     p->setAlign(Printer::MIDDLE);
     p->setBold(true);
-    p->write("BIO CHEMISTRY TEST REPORT");
+    p->write(ui->LabName->text());
+    p->feed();
+    p->feed();
+    p->write("MCA 11 TEST REPORT");
     p->setBold(false);
     p->feed();
     p->feed();
     p->setAlign(Printer::LEFT);
     p->write(" Patient ID  : "  + ui->PatientInfo_LineEdit_2->text());
-    p->write("\n TestName    : "  + ui->TestName_Lbl_5->text());
-    p->write("\n Result OD   : "   + ui->label_33->text() +  ""   +    ui->Unit_lineEdit->text());
+    p->write("\n Test Name   : "  + ui->TestName_Lbl_5->text());
+    p->write("\n Result      : "   + ui->label_33->text() +  ""   +    ui->Unit_lineEdit->text());
     p->write("\n Date        : "   + ui->SysDate_Lbl->text());
     p->write("\n Time        : "   + ui->SysTime_Lbl->text());
+    p->write("\n User Name   : "   + ui->UserName->text());
     p->feed();
     p->feed();
     p->feed();
@@ -358,5 +372,5 @@ int BCMainWindow::on_Print_Btn_2_clicked()
     timer->start(1000);
     timer1->start(1000);
     ui->Print_Btn_2->setDisabled(false);
-    return 1;
+    return 1;*/
 }

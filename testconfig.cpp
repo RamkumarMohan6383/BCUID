@@ -40,17 +40,16 @@ void BCMainWindow::on_pushButton_clicked()
     ui->lineEdit_29->setText("");
     ui->lineEdit_141->setText("");
     ui->lineEdit_142->setText("");
-
 }
 
 void BCMainWindow::on_Save_Btn_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(0);
+    //ui->stackedWidget->setCurrentIndex(0);
 
 
     QString name, unit ,  wave,rctn,temp, fact, blnk, dely, read, lag, linmin, linmax, normin, normax;
     QString mode, nostd, rpt, con1,con2,con3,con4,con5,con6,con7,con8;
-    QString ctrl1avg, ctrl1min, ctrl1max , ctrl1bno, ctrl2avg, ctrl2min,ctrl2max, ctrl2bno;
+    QString ctrl1avg, ctrl1min, ctrl1max , ctrl1bno, ctrl2avg, ctrl2min,ctrl2max, ctrl2bno , Inc_Dec;
 
     name=ui->lineEdit_4->text();
     unit=ui->lineEdit_5->text();
@@ -86,49 +85,923 @@ void BCMainWindow::on_Save_Btn_clicked()
     ctrl1max=ui->lineEdit_142->text();
     ctrl2bno=ui->lineEdit_29->text();
 
+    if(name=="")
+    {
+        ui->lineEdit_4->setStyleSheet("border: 1px solid red");
+        ui->pushButton_118->setVisible(false);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText("Please Enter Test Name.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Test Name. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        if (msg.exec()== QMessageBox::Yes)
+        {
+            ui->pushButton_118->setVisible(true);
+            ui->lineEdit_4->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->lineEdit_4->setStyleSheet("border: 1px solid red");
+            ui->pushButton_118->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
 
 
-    QSqlQuery qry;
+    }
 
-    qry.prepare("insert into test(name,wave,rctn,unit,temp,fact,blnk,dely,read,lag,linmin,linmax,normin,normax,mode,nostd,rpt,con1,con2,con3,con4,con5,con6,con7,con8,"
-                "ctrl1avg,ctrl1min,ctrl1max,ctrl1bno,ctrl2avg,ctrl2min,ctrl2max,ctrl2bno) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    else if (unit=="")
+    {
+        ui->lineEdit_5->setStyleSheet("border: 1px solid red");
+        ui->pushButton_119->setVisible(false);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText("Please Enter Test Unit.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
 
-    qry.addBindValue(name);
-    qry.addBindValue(wave);
-    qry.addBindValue(rctn);
-    qry.addBindValue(unit);
-    qry.addBindValue(temp);
-    qry.addBindValue(fact);
-    qry.addBindValue(blnk);
-    qry.addBindValue(dely);
-    qry.addBindValue(read);
-    qry.addBindValue(lag);
-    qry.addBindValue(linmin);
-    qry.addBindValue(linmax);
-    qry.addBindValue(normin);
-    qry.addBindValue(normax);
-    qry.addBindValue(mode);
-    qry.addBindValue(nostd);
-    qry.addBindValue(rpt);
-    qry.addBindValue(con1);
-    qry.addBindValue(con2);
-    qry.addBindValue(con3);
-    qry.addBindValue(con4);
-    qry.addBindValue(con5);
-    qry.addBindValue(con6);
-    qry.addBindValue(con7);
-    qry.addBindValue(con8);
-    qry.addBindValue(ctrl1avg);
-    qry.addBindValue(ctrl1min);
-    qry.addBindValue(ctrl1max);
-    qry.addBindValue(ctrl1bno);
-    qry.addBindValue(ctrl2avg);
-    qry.addBindValue(ctrl2min);
-    qry.addBindValue(ctrl2max);
-    qry.addBindValue(ctrl2bno);
-    qry.exec();
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            ui->pushButton_119->setVisible(true);
+            ui->lineEdit_5->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->lineEdit_5->setStyleSheet("border: 1px solid red");
+            ui->pushButton_119->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        //        QMessageBox::StandardButton reply;
+        //        reply = QMessageBox::question(this, "WARNING", " Please Enter Test Unit. ",
+        //                                      QMessageBox::Yes|QMessageBox::No);
 
-    qDebug()<<"Ok";
+    }
+    else if (wave=="")
+    {
+        ui->WaveLength_Combo->setStyleSheet("border: 1px solid red");
+        //ui->UserName_Btn->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Wavelength. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText("Please Enter Wavelength.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            //ui->LabName_Btn->setVisible(true);
+            ui->WaveLength_Combo->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->WaveLength_Combo->setStyleSheet("border: 1px solid red");
+            // ui->UserName_Btn->setVisible(false);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+    }
+    else if (rctn=="") {
+        ui->ReactionType_Combo->setStyleSheet("border: 1px solid red");
+        //ui->UserName_Btn->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Reaction Type. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText(" Please Enter Reaction Type.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+
+        {
+            //ui->LabName_Btn->setVisible(true);
+            ui->ReactionType_Combo->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->ReactionType_Combo->setStyleSheet("border: 1px solid red");
+            //ui->UserName_Btn->setVisible(false);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+
+    }
+    else if (temp=="") {
+        ui->Temp_Combo->setStyleSheet("border: 1px solid red");
+        // ui->UserName_Btn->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Temparature. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText(" Please Enter Temparature.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            // ui->LabName_Btn->setVisible(true);
+            ui->Temp_Combo->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->Temp_Combo->setStyleSheet("border: 1px solid red");
+            //ui->UserName_Btn->setVisible(false);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+
+    }
+    else if (fact=="") {
+        ui->lineEdit_6->setStyleSheet("border: 1px solid red");
+        ui->pushButton_123->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Factor. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText(" Please Enter Factor.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            ui->pushButton_123->setVisible(true);
+            ui->lineEdit_6->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->lineEdit_6->setStyleSheet("border: 1px solid red");
+            ui->pushButton_123->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+
+    }
+    else if (blnk=="") {
+        ui->BlankType_Combo->setStyleSheet("border: 1px solid red");
+        //ui->UserName_Btn->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Blank Type. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText("Please Enter Blank Type.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            //ui->LabName_Btn->setVisible(true);
+            ui->BlankType_Combo->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->BlankType_Combo->setStyleSheet("border: 1px solid red");
+            //ui->UserName_Btn->setVisible(false);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+
+    }
+    else if (dely=="") {
+        ui->lineEdit_7->setStyleSheet("border: 1px solid red");
+        ui->pushButton_124->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Dely Time. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText("Please Enter Dely Time. ");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            ui->pushButton_124->setVisible(true);
+            ui->lineEdit_7->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->lineEdit_7->setStyleSheet("border: 1px solid red");
+            ui->pushButton_124->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+
+    }
+    else if (read=="") {
+        ui->lineEdit_8->setStyleSheet("border: 1px solid red");
+        ui->pushButton_122->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Read Time. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText("Please Enter Read Time.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            ui->pushButton_122->setVisible(true);
+            ui->lineEdit_8->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->UserName->setStyleSheet("border: 1px solid red");
+            ui->pushButton_122->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+
+    }
+    else if (lag=="") {
+        ui->lineEdit_22->setStyleSheet("border: 1px solid red");
+        ui->pushButton_121->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Lag Time. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText(" Please Enter Lag Time.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            ui->pushButton_121->setVisible(true);
+            ui->lineEdit_22->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->lineEdit_22->setStyleSheet("border: 1px solid red");
+            ui->pushButton_121->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+
+    }
+    else if (linmin=="") {
+        ui->lineEdit_9->setStyleSheet("border: 1px solid red");
+        ui->pushButton_120->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Linear Min. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText("Please Enter Linear Min.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            ui->pushButton_120->setVisible(true);
+            ui->lineEdit_9->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->lineEdit_9->setStyleSheet("border: 1px solid red");
+            ui->pushButton_120->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+
+    }
+    else if (linmax=="") {
+        ui->lineEdit_10->setStyleSheet("border: 1px solid red");
+        ui->pushButton_120->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Linear Max. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText("Please Enter Linear Max.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            ui->pushButton_120->setVisible(true);
+            ui->lineEdit_10->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->lineEdit_10->setStyleSheet("border: 1px solid red");
+            ui->pushButton_120->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+    }
+    else if (normin=="") {
+        ui->lineEdit_12->setStyleSheet("border: 1px solid red");
+        ui->pushButton_126->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Normal Min. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText(" Please Enter Normal Min.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            ui->pushButton_126->setVisible(true);
+            ui->lineEdit_12->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->lineEdit_12->setStyleSheet("border: 1px solid red");
+            ui->pushButton_126->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+
+    }
+    else if (normax=="") {
+        ui->lineEdit_11->setStyleSheet("border: 1px solid red");
+        ui->pushButton_127->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Normal Max. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText("Please Enter Normal Max.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            ui->pushButton_127->setVisible(true);
+            ui->lineEdit_11->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+        else
+        {
+            ui->lineEdit_11->setStyleSheet("border: 1px solid red");
+            ui->pushButton_127->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(0);
+        }
+
+    }
+    else if (mode=="") {
+        ui->comboBox->setStyleSheet("border: 1px solid red");
+        //ui->UserName_Btn->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Mode. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText("Please Enter Mode.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            //ui->LabName_Btn->setVisible(true);
+            ui->comboBox->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(1);
+        }
+        else
+        {
+            ui->comboBox->setStyleSheet("border: 1px solid red");
+            //ui->UserName_Btn->setVisible(false);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(1);
+        }
+
+    }
+
+
+    else if (nostd=="") {
+        ui->comboBox_5->setStyleSheet("border: 1px solid red");
+        //ui->UserName_Btn->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter No.of Stand. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText(" Please Enter Repeat.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            //ui->LabName_Btn->setVisible(true);
+            ui->comboBox_5->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(1);
+        }
+        else
+        {
+            ui->comboBox_5->setStyleSheet("border: 1px solid red");
+            //ui->UserName_Btn->setVisible(false);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(1);
+        }
+
+    }
+    else if (rpt=="") {
+        ui->comboBox_6->setStyleSheet("border: 1px solid red");
+        //ui->UserName_Btn->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter Repeat. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText(" Please Enter Repeat.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            //ui->comboBox_6->setVisible(true);
+            ui->comboBox_6->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(1);
+        }
+        else
+        {
+            ui->comboBox_6->setStyleSheet("border: 1px solid red");
+            // ui->UserName_Btn->setVisible(false);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(1);
+        }
+
+    }
+    else if (con1=="") {
+        ui->lineEdit_88->setStyleSheet("border: 1px solid red");
+        ui->pushButton_207->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter con1. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText(" Please Enter con1.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            ui->pushButton_207->setVisible(true);
+            ui->lineEdit_88->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(1);
+        }
+        else
+        {
+            ui->lineEdit_88->setStyleSheet("border: 1px solid red");
+            ui->pushButton_207->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(1);
+        }
+
+    }
+    else if (con2=="") {
+        ui->lineEdit_92->setStyleSheet("border: 1px solid red");
+        ui->pushButton_213->setVisible(false);
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this, "WARNING", " Please Enter con2. ",
+//                                      QMessageBox::Yes|QMessageBox::No);
+        QMessageBox msg;
+        msg.setWindowModality(Qt::WindowModal);
+        msg.setWindowTitle(QLatin1String("WARNING"));
+        QPixmap p("/home/pi/git/BCUIDF/img/notification.png");
+        auto newPixmap = p.scaled(80, 80);
+        msg.setIconPixmap(newPixmap);
+        msg.setStyleSheet("font:16pt Arial;");
+        msg.setText("Please Enter con2.");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.setFixedWidth(500);
+
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            ui->pushButton_213->setVisible(true);
+            ui->lineEdit_92->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(1);
+        }
+        else
+        {
+            ui->lineEdit_92->setStyleSheet("border: 1px solid red");
+            ui->pushButton_213->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(1);
+        }
+
+    }
+    // else if (con3=="") {
+    //     ui->lineEdit_89->setStyleSheet("border: 1px solid red");
+    //     ui->pushButton_210->setVisible(false);
+    //     QMessageBox::StandardButton reply;
+    //     reply = QMessageBox::question(this, "WARNING", " Please Enter con3. ",
+    //                                   QMessageBox::Yes|QMessageBox::No);
+    //     if (reply == QMessageBox::Yes)
+    //     {
+    //         ui->pushButton_210->setVisible(true);
+    //         ui->lineEdit_89->setStyleSheet("border: none");
+    //         ui->stackedWidget->setCurrentIndex(4);
+    //         ui->tabWidget_2->setCurrentIndex(1);
+    //     }
+    //     else
+    //     {
+    //         ui->lineEdit_89->setStyleSheet("border: 1px solid red");
+    //         ui->pushButton_210->setVisible(true);
+    //         ui->stackedWidget->setCurrentIndex(4);
+    //         ui->tabWidget_2->setCurrentIndex(1);
+    //     }
+
+    // }
+    // else if (con4=="") {
+    //     ui->lineEdit_95->setStyleSheet("border: 1px solid red");
+    //     ui->pushButton_212->setVisible(false);
+    //     QMessageBox::StandardButton reply;
+    //     reply = QMessageBox::question(this, "WARNING", " Please Enter con4. ",
+    //                                   QMessageBox::Yes|QMessageBox::No);
+    //     if (reply == QMessageBox::Yes)
+    //     {
+    //         ui->pushButton_212->setVisible(true);
+    //         ui->lineEdit_95->setStyleSheet("border: none");
+    //         ui->stackedWidget->setCurrentIndex(4);
+    //         ui->tabWidget_2->setCurrentIndex(1);
+    //     }
+    //     else
+    //     {
+    //         ui->lineEdit_95->setStyleSheet("border: 1px solid red");
+    //         ui->pushButton_212->setVisible(true);
+    //         ui->stackedWidget->setCurrentIndex(4);
+    //         ui->tabWidget_2->setCurrentIndex(1);
+    //     }
+
+    // }
+    // else if (con5=="") {
+    //     ui->lineEdit_90->setStyleSheet("border: 1px solid red");
+    //     ui->pushButton_208->setVisible(false);
+    //     QMessageBox::StandardButton reply;
+    //     reply = QMessageBox::question(this, "WARNING", " Please Enter con5. ",
+    //                                   QMessageBox::Yes|QMessageBox::No);
+    //     if (reply == QMessageBox::Yes)
+    //     {
+    //         ui->pushButton_208->setVisible(true);
+    //         ui->lineEdit_90->setStyleSheet("border: none");
+    //         ui->stackedWidget->setCurrentIndex(4);
+    //         ui->tabWidget_2->setCurrentIndex(1);
+    //     }
+    //     else
+    //     {
+    //         ui->lineEdit_90->setStyleSheet("border: 1px solid red");
+    //         ui->pushButton_208->setVisible(true);
+    //         ui->stackedWidget->setCurrentIndex(4);
+    //         ui->tabWidget_2->setCurrentIndex(1);
+    //     }
+
+    // }
+    // else if (con6=="") {
+    //     ui->lineEdit_94->setStyleSheet("border: 1px solid red");
+    //     ui->pushButton_214->setVisible(false);
+    //     QMessageBox::StandardButton reply;
+    //     reply = QMessageBox::question(this, "WARNING", " Please Enter con6. ",
+    //                                   QMessageBox::Yes|QMessageBox::No);
+    //     if (reply == QMessageBox::Yes)
+    //     {
+    //         ui->pushButton_214->setVisible(true);
+    //         ui->lineEdit_94->setStyleSheet("border: none");
+    //         ui->stackedWidget->setCurrentIndex(4);
+    //         ui->tabWidget_2->setCurrentIndex(1);
+    //     }
+    //     else
+    //     {
+    //         ui->lineEdit_94->setStyleSheet("border: 1px solid red");
+    //         ui->pushButton_214->setVisible(true);
+    //         ui->stackedWidget->setCurrentIndex(4);
+    //         ui->tabWidget_2->setCurrentIndex(1);
+    //     }
+
+    // }
+    // else if (con7=="") {
+    //     ui->lineEdit_91->setStyleSheet("border: 1px solid red");
+    //     ui->pushButton_209->setVisible(false);
+    //     QMessageBox::StandardButton reply;
+    //     reply = QMessageBox::question(this, "WARNING", " Please Enter con7. ",
+    //                                   QMessageBox::Yes|QMessageBox::No);
+    //     if (reply == QMessageBox::Yes)
+    //     {
+    //         ui->pushButton_209->setVisible(true);
+    //         ui->lineEdit_91->setStyleSheet("border: none");
+    //         ui->stackedWidget->setCurrentIndex(4);
+    //         ui->tabWidget_2->setCurrentIndex(1);
+    //     }
+    //     else
+    //     {
+    //         ui->lineEdit_91->setStyleSheet("border: 1px solid red");
+    //         ui->pushButton_209->setVisible(true);
+    //         ui->stackedWidget->setCurrentIndex(4);
+    //         ui->tabWidget_2->setCurrentIndex(1);
+    //     }
+
+    // }
+    // else if (con8=="") {
+    //     ui->lineEdit_93->setStyleSheet("border: 1px solid red");
+    //     ui->pushButton_211->setVisible(false);
+    //     QMessageBox::StandardButton reply;
+    //     reply = QMessageBox::question(this, "WARNING", " Please Enter con8. ",
+    //                                   QMessageBox::Yes|QMessageBox::No);
+    //     if (reply == QMessageBox::Yes)
+    //     {
+    //         ui->pushButton_211->setVisible(true);
+    //         ui->lineEdit_93->setStyleSheet("border: none");
+    //         ui->stackedWidget->setCurrentIndex(4);
+    //         ui->tabWidget_2->setCurrentIndex(1);
+    //     }
+    //     else
+    //     {
+    //         ui->lineEdit_93->setStyleSheet("border: 1px solid red");
+    //         ui->pushButton_211->setVisible(true);
+    //         ui->stackedWidget->setCurrentIndex(4);
+    //         ui->tabWidget_2->setCurrentIndex(1);
+    //     }
+
+    // }
+
+    else if (ctrl1avg=="") {
+        ui->lineEdit_21->setStyleSheet("border: 1px solid red");
+        ui->pushButton_136->setVisible(false);
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "WARNING", " Please Enter Ctrl1avg. ",
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes)
+        {
+            ui->pushButton_136->setVisible(true);
+            ui->lineEdit_21->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(2);
+        }
+        else
+        {
+            ui->lineEdit_21->setStyleSheet("border: 1px solid red");
+            ui->pushButton_136->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(2);
+        }
+
+    }
+    else if (ctrl1min=="") {
+        ui->lineEdit_23->setStyleSheet("border: 1px solid red");
+        ui->pushButton_137->setVisible(false);
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "WARNING", " Please Enter Ctrl1min. ",
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes)
+        {
+            ui->pushButton_137->setVisible(true);
+            ui->lineEdit_23->setStyleSheet("border: none");
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(2);
+        }
+        else
+        {
+            ui->lineEdit_23->setStyleSheet("border: 1px solid red");
+            ui->pushButton_137->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->tabWidget_2->setCurrentIndex(2);
+        }
+
+    }
+
+    else
+    {
+        ui->lineEdit_4->setStyleSheet("border:none");
+        ui->lineEdit_5->setStyleSheet("border:none");
+        ui->lineEdit_6->setStyleSheet("border:none");
+        ui->lineEdit_7->setStyleSheet("border:none");
+        ui->lineEdit_8->setStyleSheet("border:none");
+        ui->lineEdit_9->setStyleSheet("border:none");
+        ui->lineEdit_10->setStyleSheet("border:none");
+        ui->lineEdit_11->setStyleSheet("border:none");
+        ui->lineEdit_12->setStyleSheet("border:none");
+        ui->lineEdit_21->setStyleSheet("border:none");
+        ui->lineEdit_22->setStyleSheet("border:none");
+        ui->lineEdit_23->setStyleSheet("border:none");
+        ui->lineEdit_25->setStyleSheet("border:none");
+        ui->lineEdit_26->setStyleSheet("border:none");
+        ui->lineEdit_28->setStyleSheet("border:none");
+        ui->lineEdit_29->setStyleSheet("border:none");
+        ui->lineEdit_88->setStyleSheet("border:none");
+        ui->lineEdit_89->setStyleSheet("border:none");
+        ui->lineEdit_90->setStyleSheet("border:none");
+        ui->lineEdit_91->setStyleSheet("border:none");
+        ui->lineEdit_92->setStyleSheet("border:none");
+        ui->lineEdit_93->setStyleSheet("border:none");
+        ui->lineEdit_94->setStyleSheet("border:none");
+        ui->lineEdit_95->setStyleSheet("border:none");
+        ui->lineEdit_141->setStyleSheet("border:none");
+        ui->lineEdit_142->setStyleSheet("border:none");
+
+        ui->pushButton_118->setVisible(true);
+        ui->pushButton_119->setVisible(true);
+        ui->pushButton_120->setVisible(true);
+        ui->pushButton_121->setVisible(true);
+        ui->pushButton_122->setVisible(true);
+        ui->pushButton_123->setVisible(true);
+        ui->pushButton_124->setVisible(true);
+        ui->pushButton_125->setVisible(true);
+        ui->pushButton_126->setVisible(true);
+        ui->pushButton_127->setVisible(true);
+        ui->pushButton_138->setVisible(true);
+        ui->pushButton_139->setVisible(true);
+        ui->pushButton_140->setVisible(true);
+        ui->pushButton_141->setVisible(true);
+        ui->pushButton_137->setVisible(true);
+        ui->pushButton_136->setVisible(true);
+
+        ui->pushButton_207->setVisible(true);
+        ui->pushButton_208->setVisible(true);
+        ui->pushButton_209->setVisible(true);
+        ui->pushButton_210->setVisible(true);
+        ui->pushButton_211->setVisible(true);
+        ui->pushButton_212->setVisible(true);
+        ui->pushButton_213->setVisible(true);
+        ui->pushButton_214->setVisible(true);
+        ui->pushButton_218->setVisible(true);
+        ui->pushButton_219->setVisible(true);
+
+
+
+        QSqlQuery qry;
+
+        qry.prepare("insert into test(name,wave,rctn,unit,temp,fact,blnk,dely,read,lag,linmin,linmax,normin,normax,mode,nostd,rpt,con1,con2,con3,con4,con5,con6,con7,con8,"
+                    "ctrl1avg,ctrl1min,ctrl1max,ctrl1bno,ctrl2avg,ctrl2min,ctrl2max,ctrl2bno, Inc_Dec) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+
+        qry.addBindValue(name);
+        qry.addBindValue(wave);
+        qry.addBindValue(rctn);
+        qry.addBindValue(unit);
+        qry.addBindValue(temp);
+        qry.addBindValue(fact);
+        qry.addBindValue(blnk);
+        qry.addBindValue(dely);
+        qry.addBindValue(read);
+        qry.addBindValue(lag);
+        qry.addBindValue(linmin);
+        qry.addBindValue(linmax);
+        qry.addBindValue(normin);
+        qry.addBindValue(normax);
+        qry.addBindValue(mode);
+        qry.addBindValue(nostd);
+        qry.addBindValue(rpt);
+        qry.addBindValue(con1);
+        qry.addBindValue(con2);
+        qry.addBindValue(con3);
+        qry.addBindValue(con4);
+        qry.addBindValue(con5);
+        qry.addBindValue(con6);
+        qry.addBindValue(con7);
+        qry.addBindValue(con8);
+        qry.addBindValue(ctrl1avg);
+        qry.addBindValue(ctrl1min);
+        qry.addBindValue(ctrl1max);
+        qry.addBindValue(ctrl1bno);
+        qry.addBindValue(ctrl2avg);
+        qry.addBindValue(ctrl2min);
+        qry.addBindValue(ctrl2max);
+        qry.addBindValue(ctrl2bno);
+        qry.addBindValue(Inc_Dec);
+        qry.exec();
+        ui->stackedWidget->setCurrentIndex(0);
+
+        qDebug()<<"Ok";
+    }
+
+
+
 
 }
 
@@ -190,7 +1063,7 @@ void BCMainWindow::cald2()
     QSqlQuery query;
     QString  Wave ,Rctn , Blnk , Temp, Fact , Dely, Read, Lag, Linmin, Linmax, Normin, Normax;
     QString Mode , Nostd , Rpt , Con1,Con2,Con3,Con4,Con5,Con6,Con7,Con8;
-    QString Ctrl1avg, Ctrl1min,Ctrl1max, Ctrl1bno, Ctrl2avg, Ctrl2min,Ctrl2max, Ctrl2bno , StandAbso;
+    QString Ctrl1avg, Ctrl1min,Ctrl1max, Ctrl1bno, Ctrl2avg, Ctrl2min,Ctrl2max, Ctrl2bno , StandAbso , Inc_Dec;
 
 
     QString TestName = ui->label_16->text();
@@ -232,6 +1105,7 @@ void BCMainWindow::cald2()
     Ctrl2max=char(ctrl2max);
     Ctrl2bno=char(ctrl2bno);
     StandAbso=char(StandAbs);
+    //Inc_Dec=char(inc_dec);
 
     query.prepare("select * from test where name='"+TestName+"'");
     query.exec();
@@ -270,6 +1144,7 @@ void BCMainWindow::cald2()
         Ctrl2max=query.value(34).toString();
         Ctrl2bno=query.value(31).toString();
         StandAbso=query.value(33).toString();
+        Inc_Dec=query.value(34).toString();
 
     }
 
@@ -318,11 +1193,11 @@ void BCMainWindow::on_Update_Btn_clicked()
 
     QString  Fact, Wave, Rctn ,  Temp,Blnk, Dely, Read, Lag, Linmin, Linmax, Normin, Normax;
     QString Mode, Nostd, Rpt, Con1,Con2,Con3,Con4,Con5,Con6,Con7,Con8;
-    QString Ctrl1avg, Ctrl1min,Ctrl1max, Ctrl1bno, Ctrl2avg, Ctrl2min,Ctrl2max, Ctrl2bno;
+    QString Ctrl1avg, Ctrl1min,Ctrl1max, Ctrl1bno, Ctrl2avg, Ctrl2min,Ctrl2max, Ctrl2bno , Inc_Dec;
 
     int wave = 0, rctn = 0, temp = 0, fact = 0, blnk = 0, dely = 0, read = 0, lag = 0, linmin = 0, linmax = 0, normin = 0, normax = 0;
     int mode = 0, nostd = 0, rpt = 0, con1 = 0,con2 = 0,con3 = 0,con4 = 0,con5 = 0,con6 = 0,con7 = 0,con8 = 0;
-    int ctrl1avg = 0, ctrl1min = 0,ctrl1max=0, ctrl1bno = 0, ctrl2avg = 0, ctrl2min = 0,ctrl2max=0, ctrl2bno = 0;
+    int ctrl1avg = 0, ctrl1min = 0,ctrl1max=0, ctrl1bno = 0, ctrl2avg = 0, ctrl2min = 0,ctrl2max=0, ctrl2bno = 0 ;
 
 
     Wave = char(wave);
@@ -357,6 +1232,7 @@ void BCMainWindow::on_Update_Btn_clicked()
     Ctrl2min=char(ctrl2min);
     Ctrl2max=char(ctrl2max);
     Ctrl2bno=char(ctrl2bno);
+    //Inc_Dec=char(inc_dec);
 
 
     name = ui->lineEdit_24->text();
@@ -393,7 +1269,7 @@ void BCMainWindow::on_Update_Btn_clicked()
     Ctrl2max=ui->lineEdit_144->text();
     Ctrl2bno=ui->lineEdit_63->text();
 
-    query.prepare("update test set name='"+name+"',unit='"+unit+"',wave='"+Wave+"', rctn='"+Rctn+"', temp='"+Temp+"', fact='"+Fact+"', blnk='"+Blnk+"', dely='"+Dely+"', read='"+Read+"', lag='"+Lag+"',linmin='"+Linmin+"', linmax='"+Linmax+"', normin='"+Normin+"', normax='"+Normax+"', mode='"+Mode+"', nostd='"+Nostd+"', rpt='"+Rpt+"', con1='"+Con1+"',con2='"+Con2+"',con3='"+Con3+"',con4='"+Con4+"',con5='"+Con5+"',con6='"+Con6+"',con7='"+Con7+"',con8='"+Con8+"',ctrl1avg='"+Ctrl1avg+"', ctrl1min='"+Ctrl1min+"',ctrl1max='"+Ctrl1max+"', ctrl1bno='"+Ctrl1bno+"', ctrl2avg='"+Ctrl2avg+"', ctrl2min='"+Ctrl2min+"', ctrl2max='"+Ctrl2max+"',ctrl2bno='"+Ctrl2bno+"' where name='"+name+"'");
+    query.prepare("update test set name='"+name+"',unit='"+unit+"',wave='"+Wave+"', rctn='"+Rctn+"', temp='"+Temp+"', fact='"+Fact+"', blnk='"+Blnk+"', dely='"+Dely+"', read='"+Read+"', lag='"+Lag+"',linmin='"+Linmin+"', linmax='"+Linmax+"', normin='"+Normin+"', normax='"+Normax+"', mode='"+Mode+"', nostd='"+Nostd+"', rpt='"+Rpt+"', con1='"+Con1+"',con2='"+Con2+"',con3='"+Con3+"',con4='"+Con4+"',con5='"+Con5+"',con6='"+Con6+"',con7='"+Con7+"',con8='"+Con8+"',ctrl1avg='"+Ctrl1avg+"', ctrl1min='"+Ctrl1min+"',ctrl1max='"+Ctrl1max+"', ctrl1bno='"+Ctrl1bno+"', ctrl2avg='"+Ctrl2avg+"', ctrl2min='"+Ctrl2min+"', ctrl2max='"+Ctrl2max+"',ctrl2bno='"+Ctrl2bno+"' ,Inc_Dec='"+Inc_Dec+"'  where name='"+name+"'");
     if(query.exec())
     {
         QMessageBox::information(this,tr("Update"),tr("Updated"));
@@ -419,6 +1295,7 @@ void BCMainWindow::on_Update_Btn_clicked()
 void BCMainWindow::on_pushButton_3_clicked()
 {
     ui->stackedWidget->setCurrentIndex(7);
+
     ui->gridLayout->update();
     ui->gridLayout_6->update();
     ui->gridLayout_8->update();
@@ -470,14 +1347,14 @@ void BCMainWindow::cald3()
     QSqlQuery query;
     QString  Wave ,Rctn , Blnk , Temp, Fact , Dely, Read, Lag, Linmin, Linmax, Normin, Normax;
     QString Mode , Nostd , Rpt , Con1,Con2,Con3,Con4,Con5,Con6,Con7,Con8;
-    QString Ctrl1avg, Ctrl1min,Ctrl1max, Ctrl1bno, Ctrl2avg, Ctrl2min,Ctrl2max, Ctrl2bno , StandAbso;
+    QString Ctrl1avg, Ctrl1min,Ctrl1max, Ctrl1bno, Ctrl2avg, Ctrl2min,Ctrl2max, Ctrl2bno , StandAbso , Inc_Dec;
 
 
     QString TestName = ui->lineEdit_38->text();
 
     int  wave =0 ,rctn =0 , temp =0 ,blnk =0,fact = 0,  dely = 0, read = 0, lag = 0, linmin = 0, linmax = 0, normin = 0, normax = 0;
     int  mode = 0, nostd =0, rpt= 0,con1 = 0,con2 = 0,con3 = 0,con4 = 0,con5 = 0,con6 = 0,con7 = 0,con8 = 0;
-    int ctrl1avg = 0, ctrl1min = 0,ctrl1max=0, ctrl1bno = 0, ctrl2avg = 0, ctrl2min = 0,ctrl2max=0, ctrl2bno = 0 , StandAbs = 0;
+    int ctrl1avg = 0, ctrl1min = 0,ctrl1max=0, ctrl1bno = 0, ctrl2avg = 0, ctrl2min = 0,ctrl2max=0, ctrl2bno = 0 , StandAbs = 0 ;
 
     Wave = char (wave);
     Rctn = char (rctn);
@@ -512,6 +1389,7 @@ void BCMainWindow::cald3()
     Ctrl2max=char(ctrl2max);
     Ctrl2bno=char(ctrl2bno);
     StandAbso= char(StandAbs);
+    //    Inc_Dec=char(inc_dec);
 
     query.prepare("select * from test where name='"+TestName+"'");
     query.exec();
@@ -550,6 +1428,7 @@ void BCMainWindow::cald3()
         Ctrl2max=query.value(34).toString();
         Ctrl2bno=query.value(31).toString();
         StandAbso=query.value(33).toString();
+        Inc_Dec=query.value(34).toString();
 
     }
 
@@ -586,31 +1465,26 @@ void BCMainWindow::cald3()
     ui->lineEdit_144->setText(Ctrl2max);
     ui->lineEdit_71->setText(Ctrl2bno);
     ui->lineEdit_120->setText(StandAbso);
-
 }
 
 void BCMainWindow::on_Delete_Btn_clicked()
 {
-    //BCMainWindow conn;
     QString TestName=ui->lineEdit_38->text();
-    //    if(!conn.connOpen())
-    //     {
-    //         qDebug()<<"failed to open the database";
-    //         return;
-    //     }
-    //     conn.connOpen();
     QSqlQuery query;
     query.prepare("Delete from test where name='"+TestName+"'");
     if(query.exec())
     {
         QMessageBox::information(this,tr("Delete"),tr("Delete"));
-        // conn.connclose();
         ui->gridLayout->update();
         ui->tableView->update();
         ui->gridLayout_2->update();
         ui->gridLayout_6->update();
         ui->gridLayout_8->update();
+        ui->tabWidget->update();
+        ui->tabWidget_6->update();
         ui->stackedWidget->setCurrentIndex(0);
+
+
     }
     else
     {

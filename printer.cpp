@@ -7,12 +7,9 @@
 ***************************************************************/
 
 #include "printer.h"
-
 #include <QImage>
-
 #include <iostream>
 #include <unistd.h>
-
 
 Printer::Printer(QObject *parent) :
     QObject(parent)
@@ -27,7 +24,6 @@ bool Printer::open(QString path) {
 
     if (!port->open(QIODevice::WriteOnly))
         return false;
-
     // set options
     port->setBaudRate(BAUD9600);
     port->setDataBits(DATA_8);

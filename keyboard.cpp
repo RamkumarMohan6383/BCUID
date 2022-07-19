@@ -1,6 +1,5 @@
 #include "bcmainwindow.h"
 #include "ui_bcmainwindow.h"
-
 static int opt=0;
 
 void BCMainWindow::on_pushButton_17_clicked()
@@ -19,6 +18,50 @@ void BCMainWindow::on_pushButton_14_clicked()
 
 }
 
+void BCMainWindow::on_Patient_Name_Btn_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(16);
+    ui->stackedWidget_2->setCurrentIndex(0);
+    ui->label_4->setText("Patient Name");
+    opt=119;
+    ui->lineEdit->setText(ui->Patient_Name->text());
+}
+
+void BCMainWindow::on_Patient_Age_Btn_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(16);
+    ui->stackedWidget_2->setCurrentIndex(2);
+    ui->label_4->setText("Patient Age");
+    opt=120;
+    ui->lineEdit->setText(ui->Patient_Age->text());
+}
+
+void BCMainWindow::on_Patient_Gender_Btn_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(16);
+    ui->stackedWidget_2->setCurrentIndex(0);
+    ui->label_4->setText("Patient Gender");
+    opt=121;
+    //ui->lineEdit->setText(ui->Patient_Gender->text());
+}
+
+void BCMainWindow::on_pushButton_230_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(16);
+    ui->stackedWidget_2->setCurrentIndex(1);
+    ui->label_4->setText("Maintenance Password");
+    opt=122;
+    ui->lineEdit->setText(ui->lineEdit_148->text());
+}
+
+void BCMainWindow::on_pushButton_240_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(16);
+    ui->stackedWidget_2->setCurrentIndex(2);
+    ui->label_4->setText("Sample ID");
+    opt=123;
+    ui->lineEdit->setText(ui->lineEdit_149->text());
+}
 
 void BCMainWindow::on_pushButton_47_clicked()
 {
@@ -532,9 +575,46 @@ void BCMainWindow::on_pushButton_18_clicked()
     else if(opt==116)
     {
         ui->lineEdit_147->setText(text);
-        ui->stackedWidget->setCurrentIndex(18);
+        ui->stackedWidget->setCurrentIndex(21);
     }
 
+    else if(opt==117)
+    {
+        ui->LabName->setText(text);
+        ui->stackedWidget->setCurrentIndex(23);
+    }
+
+    else if(opt==118)
+    {
+        ui->UserName->setText(text);
+        ui->stackedWidget->setCurrentIndex(23);
+    }
+
+    else if(opt==119)
+    {
+        ui->Patient_Name->setText(text);
+        ui->stackedWidget->setCurrentIndex(25);
+    }
+    else if(opt==120)
+    {
+        ui->Patient_Age->setText(text);
+        ui->stackedWidget->setCurrentIndex(25);
+    }
+    else if(opt==121)
+    {
+        //ui->Patient_Gender->setText(text);
+        ui->stackedWidget->setCurrentIndex(25);
+    }
+    else if(opt==122)
+    {
+        ui->lineEdit_148->setText(text);
+        ui->stackedWidget->setCurrentIndex(15);
+    }
+    else if(opt==123)
+    {
+        ui->lineEdit_149->setText(text);
+        ui->stackedWidget->setCurrentIndex(13);
+    }
     else
     {
         QSqlQuery query;
@@ -1214,9 +1294,46 @@ void BCMainWindow::on_pushButton_67_clicked()
     else if(opt==116)
     {
         ui->lineEdit_147->setText(text);
-        ui->stackedWidget->setCurrentIndex(18);
+        ui->stackedWidget->setCurrentIndex(21);
     }
 
+    else if(opt==117)
+    {
+        ui->LabName->setText(text);
+        ui->stackedWidget->setCurrentIndex(23);
+    }
+
+    else if(opt==118)
+    {
+        ui->UserName->setText(text);
+        ui->stackedWidget->setCurrentIndex(23);
+    }
+
+    else if(opt==119)
+    {
+        ui->Patient_Name->setText(text);
+        ui->stackedWidget->setCurrentIndex(25);
+    }
+    else if(opt==120)
+    {
+        ui->Patient_Age->setText(text);
+        ui->stackedWidget->setCurrentIndex(25);
+    }
+    else if(opt==121)
+    {
+        //ui->Patient_Gender->setText(text);
+        ui->stackedWidget->setCurrentIndex(25);
+    }
+    else if(opt==122)
+    {
+        ui->lineEdit_148->setText(text);
+        ui->stackedWidget->setCurrentIndex(15);
+    }
+    else if(opt==123)
+    {
+        ui->lineEdit_149->setText(text);
+        ui->stackedWidget->setCurrentIndex(13);
+    }
     else
     {
         QSqlQuery query;
@@ -1274,7 +1391,7 @@ void BCMainWindow::on_pushButton_67_clicked()
 
 void BCMainWindow::on_pushButton_224_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Multiplication Factor");
     opt=116;
@@ -1773,8 +1890,47 @@ void BCMainWindow::on_pushButton_93_clicked()
     else if(opt==116)
     {
         ui->lineEdit_147->setText(text);
-        ui->stackedWidget->setCurrentIndex(18);
+        ui->stackedWidget->setCurrentIndex(21);
     }
+
+    else if(opt==117)
+    {
+        ui->LabName->setText(text);
+        ui->stackedWidget->setCurrentIndex(23);
+    }
+
+    else if(opt==118)
+    {
+        ui->UserName->setText(text);
+        ui->stackedWidget->setCurrentIndex(23);
+    }
+
+    else if(opt==119)
+    {
+        ui->Patient_Name->setText(text);
+        ui->stackedWidget->setCurrentIndex(25);
+    }
+    else if(opt==120)
+    {
+        ui->Patient_Age->setText(text);
+        ui->stackedWidget->setCurrentIndex(25);
+    }
+    else if(opt==121)
+    {
+        //ui->Patient_Gender->setText(text);
+        ui->stackedWidget->setCurrentIndex(25);
+    }
+    else if(opt==122)
+    {
+        ui->lineEdit_148->setText(text);
+        ui->stackedWidget->setCurrentIndex(15);
+    }
+    else if(opt==123)
+    {
+        ui->lineEdit_149->setText(text);
+        ui->stackedWidget->setCurrentIndex(13);
+    }
+
     else
     {
         QSqlQuery query;
@@ -2156,7 +2312,7 @@ void BCMainWindow::on_pushButton_60_clicked()
 
 void BCMainWindow::on_pushButton_117_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Patient Info");
     opt=1;
@@ -2165,7 +2321,7 @@ void BCMainWindow::on_pushButton_117_clicked()
 
 void BCMainWindow::on_pushButton_118_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(0);
     ui->label_4->setText("Test Name");
     opt=2;
@@ -2174,7 +2330,7 @@ void BCMainWindow::on_pushButton_118_clicked()
 
 void BCMainWindow::on_pushButton_119_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->label_4->setText("Unit");
     opt=3;
     ui->lineEdit->setText(ui->lineEdit_5->text());
@@ -2182,7 +2338,7 @@ void BCMainWindow::on_pushButton_119_clicked()
 
 void BCMainWindow::on_pushButton_123_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Factor");
     opt=4;
@@ -2191,7 +2347,7 @@ void BCMainWindow::on_pushButton_123_clicked()
 
 void BCMainWindow::on_pushButton_124_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Delay Time(S)");
     opt=5;
@@ -2200,7 +2356,7 @@ void BCMainWindow::on_pushButton_124_clicked()
 
 void BCMainWindow::on_pushButton_122_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Incubation Time(S)");
     opt=6;
@@ -2209,7 +2365,7 @@ void BCMainWindow::on_pushButton_122_clicked()
 
 void BCMainWindow::on_pushButton_121_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Lag Time(S)");
     opt=7;
@@ -2218,7 +2374,7 @@ void BCMainWindow::on_pushButton_121_clicked()
 
 void BCMainWindow::on_pushButton_120_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Linear Range(Min)");
     opt=8;
@@ -2227,7 +2383,7 @@ void BCMainWindow::on_pushButton_120_clicked()
 
 void BCMainWindow::on_pushButton_125_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Linear Range(Max)");
     opt=9;
@@ -2236,7 +2392,7 @@ void BCMainWindow::on_pushButton_125_clicked()
 
 void BCMainWindow::on_pushButton_126_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Normal Range(Min)");
     opt=10;
@@ -2245,7 +2401,7 @@ void BCMainWindow::on_pushButton_126_clicked()
 
 void BCMainWindow::on_pushButton_127_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Normal Range(Max)");
     opt=11;
@@ -2254,7 +2410,7 @@ void BCMainWindow::on_pushButton_127_clicked()
 
 void BCMainWindow::on_pushButton_207_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(1)");
     opt=12;
@@ -2263,7 +2419,7 @@ void BCMainWindow::on_pushButton_207_clicked()
 
 void BCMainWindow::on_pushButton_213_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(3)");
     opt=13;
@@ -2272,7 +2428,7 @@ void BCMainWindow::on_pushButton_213_clicked()
 
 void BCMainWindow::on_pushButton_210_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(5)");
     opt=14;
@@ -2281,7 +2437,7 @@ void BCMainWindow::on_pushButton_210_clicked()
 
 void BCMainWindow::on_pushButton_212_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(7)");
     opt=15;
@@ -2290,7 +2446,7 @@ void BCMainWindow::on_pushButton_212_clicked()
 
 void BCMainWindow::on_pushButton_208_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(2)");
     opt=16;
@@ -2299,7 +2455,7 @@ void BCMainWindow::on_pushButton_208_clicked()
 
 void BCMainWindow::on_pushButton_214_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(4)");
     opt=17;
@@ -2308,7 +2464,7 @@ void BCMainWindow::on_pushButton_214_clicked()
 
 void BCMainWindow::on_pushButton_209_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(6)");
     opt=18;
@@ -2317,7 +2473,7 @@ void BCMainWindow::on_pushButton_209_clicked()
 
 void BCMainWindow::on_pushButton_211_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(8)");
     opt=19;
@@ -2326,7 +2482,7 @@ void BCMainWindow::on_pushButton_211_clicked()
 
 void BCMainWindow::on_pushButton_136_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control 1 - Average");
     opt=20;
@@ -2335,7 +2491,7 @@ void BCMainWindow::on_pushButton_136_clicked()
 
 void BCMainWindow::on_pushButton_137_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control 1 - Minimum");
     opt=21;
@@ -2344,7 +2500,7 @@ void BCMainWindow::on_pushButton_137_clicked()
 
 void BCMainWindow::on_pushButton_138_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control 1 - Batch No");
     opt=22;
@@ -2353,7 +2509,7 @@ void BCMainWindow::on_pushButton_138_clicked()
 
 void BCMainWindow::on_pushButton_139_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control 2 - Average");
     opt=23;
@@ -2362,7 +2518,7 @@ void BCMainWindow::on_pushButton_139_clicked()
 
 void BCMainWindow::on_pushButton_140_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control 2 - Minimum");
     opt=24;
@@ -2371,7 +2527,7 @@ void BCMainWindow::on_pushButton_140_clicked()
 
 void BCMainWindow::on_pushButton_141_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control 2 - Batch No");
     opt=25;
@@ -2380,7 +2536,7 @@ void BCMainWindow::on_pushButton_141_clicked()
 
 void BCMainWindow::on_pushButton_142_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(0);
     ui->label_4->setText("Test Name");
     opt=26;
@@ -2389,7 +2545,7 @@ void BCMainWindow::on_pushButton_142_clicked()
 
 void BCMainWindow::on_pushButton_147_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->label_4->setText("Unit");
     opt=27;
     ui->lineEdit->setText(ui->lineEdit_27->text());
@@ -2397,7 +2553,7 @@ void BCMainWindow::on_pushButton_147_clicked()
 
 void BCMainWindow::on_pushButton_143_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Factor");
     opt=28;
@@ -2406,7 +2562,7 @@ void BCMainWindow::on_pushButton_143_clicked()
 
 void BCMainWindow::on_pushButton_148_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Delay Time(S)");
     opt=29;
@@ -2415,7 +2571,7 @@ void BCMainWindow::on_pushButton_148_clicked()
 
 void BCMainWindow::on_pushButton_149_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Incubation Time(S)");
     opt=30;
@@ -2424,7 +2580,7 @@ void BCMainWindow::on_pushButton_149_clicked()
 
 void BCMainWindow::on_pushButton_150_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Lag Time(S)");
     opt=31;
@@ -2433,7 +2589,7 @@ void BCMainWindow::on_pushButton_150_clicked()
 
 void BCMainWindow::on_pushButton_145_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Linear Range(Min)");
     opt=32;
@@ -2442,7 +2598,7 @@ void BCMainWindow::on_pushButton_145_clicked()
 
 void BCMainWindow::on_pushButton_144_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Linear Range(Max)");
     opt=33;
@@ -2451,7 +2607,7 @@ void BCMainWindow::on_pushButton_144_clicked()
 
 void BCMainWindow::on_pushButton_146_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Normal Range(Min)");
     opt=34;
@@ -2460,7 +2616,7 @@ void BCMainWindow::on_pushButton_146_clicked()
 
 void BCMainWindow::on_pushButton_201_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Normal Range(Max)");
     opt=35;
@@ -2469,7 +2625,7 @@ void BCMainWindow::on_pushButton_201_clicked()
 
 void BCMainWindow::on_pushButton_215_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(1)");
     opt=36;
@@ -2478,7 +2634,7 @@ void BCMainWindow::on_pushButton_215_clicked()
 
 void BCMainWindow::on_pushButton_236_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(3)");
     opt=37;
@@ -2487,7 +2643,7 @@ void BCMainWindow::on_pushButton_236_clicked()
 
 void BCMainWindow::on_pushButton_234_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(5)");
     opt=38;
@@ -2496,7 +2652,7 @@ void BCMainWindow::on_pushButton_234_clicked()
 
 void BCMainWindow::on_pushButton_238_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(7)");
     opt=39;
@@ -2505,7 +2661,7 @@ void BCMainWindow::on_pushButton_238_clicked()
 
 void BCMainWindow::on_pushButton_232_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(2)");
     opt=40;
@@ -2514,7 +2670,7 @@ void BCMainWindow::on_pushButton_232_clicked()
 
 void BCMainWindow::on_pushButton_237_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(4)");
     opt=41;
@@ -2523,7 +2679,7 @@ void BCMainWindow::on_pushButton_237_clicked()
 
 void BCMainWindow::on_pushButton_233_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(6)");
     opt=42;
@@ -2532,7 +2688,7 @@ void BCMainWindow::on_pushButton_233_clicked()
 
 void BCMainWindow::on_pushButton_235_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(8)");
     opt=43;
@@ -2541,7 +2697,7 @@ void BCMainWindow::on_pushButton_235_clicked()
 
 void BCMainWindow::on_pushButton_159_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - Average");
     opt=44;
@@ -2550,7 +2706,7 @@ void BCMainWindow::on_pushButton_159_clicked()
 
 void BCMainWindow::on_pushButton_160_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - Minimum");
     opt=45;
@@ -2559,7 +2715,7 @@ void BCMainWindow::on_pushButton_160_clicked()
 
 void BCMainWindow::on_pushButton_161_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - Batch No");
     opt=46;
@@ -2568,7 +2724,7 @@ void BCMainWindow::on_pushButton_161_clicked()
 
 void BCMainWindow::on_pushButton_162_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - Average");
     opt=47;
@@ -2577,7 +2733,7 @@ void BCMainWindow::on_pushButton_162_clicked()
 
 void BCMainWindow::on_pushButton_163_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - Minimum");
     opt=48;
@@ -2586,7 +2742,7 @@ void BCMainWindow::on_pushButton_163_clicked()
 
 void BCMainWindow::on_pushButton_164_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - Batch No");
     opt=49;
@@ -2596,7 +2752,7 @@ void BCMainWindow::on_pushButton_164_clicked()
 
 void BCMainWindow::on_pushButton_151_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(0);
     ui->label_4->setText("Test Name");
     opt=50;
@@ -2605,7 +2761,7 @@ void BCMainWindow::on_pushButton_151_clicked()
 
 void BCMainWindow::on_pushButton_156_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->label_4->setText("Unit");
     opt=51;
     ui->lineEdit->setText(ui->lineEdit_39->text());
@@ -2613,7 +2769,7 @@ void BCMainWindow::on_pushButton_156_clicked()
 
 void BCMainWindow::on_pushButton_152_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Factor");
     opt=52;
@@ -2622,7 +2778,7 @@ void BCMainWindow::on_pushButton_152_clicked()
 
 void BCMainWindow::on_pushButton_157_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Delay Time(S)");
     opt=53;
@@ -2631,7 +2787,7 @@ void BCMainWindow::on_pushButton_157_clicked()
 
 void BCMainWindow::on_pushButton_158_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Incubation Time(S)");
     opt=54;
@@ -2640,7 +2796,7 @@ void BCMainWindow::on_pushButton_158_clicked()
 
 void BCMainWindow::on_pushButton_165_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Lag Time(S)");
     opt=55;
@@ -2649,7 +2805,7 @@ void BCMainWindow::on_pushButton_165_clicked()
 
 void BCMainWindow::on_pushButton_154_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Linear Range(Min)");
     opt=56;
@@ -2658,7 +2814,7 @@ void BCMainWindow::on_pushButton_154_clicked()
 
 void BCMainWindow::on_pushButton_153_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Linear Range(Max)");
     opt=57;
@@ -2667,7 +2823,7 @@ void BCMainWindow::on_pushButton_153_clicked()
 
 void BCMainWindow::on_pushButton_155_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Normal Range(Min)");
     opt=58;
@@ -2676,7 +2832,7 @@ void BCMainWindow::on_pushButton_155_clicked()
 
 void BCMainWindow::on_pushButton_239_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Normal Range(Max)");
     opt=59;
@@ -2685,7 +2841,7 @@ void BCMainWindow::on_pushButton_239_clicked()
 
 void BCMainWindow::on_pushButton_248_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(1)");
     opt=60;
@@ -2694,7 +2850,7 @@ void BCMainWindow::on_pushButton_248_clicked()
 
 void BCMainWindow::on_pushButton_253_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(3)");
     opt=61;
@@ -2703,7 +2859,7 @@ void BCMainWindow::on_pushButton_253_clicked()
 
 void BCMainWindow::on_pushButton_251_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(5)");
     opt=62;
@@ -2712,7 +2868,7 @@ void BCMainWindow::on_pushButton_251_clicked()
 
 void BCMainWindow::on_pushButton_255_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(7)");
     opt=63;
@@ -2721,7 +2877,7 @@ void BCMainWindow::on_pushButton_255_clicked()
 
 void BCMainWindow::on_pushButton_249_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(2)");
     opt=64;
@@ -2730,7 +2886,7 @@ void BCMainWindow::on_pushButton_249_clicked()
 
 void BCMainWindow::on_pushButton_254_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(4)");
     opt=65;
@@ -2739,7 +2895,7 @@ void BCMainWindow::on_pushButton_254_clicked()
 
 void BCMainWindow::on_pushButton_250_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(6)");
     opt=66;
@@ -2748,7 +2904,7 @@ void BCMainWindow::on_pushButton_250_clicked()
 
 void BCMainWindow::on_pushButton_252_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Standard Concentration(8)");
     opt=67;
@@ -2757,7 +2913,7 @@ void BCMainWindow::on_pushButton_252_clicked()
 
 void BCMainWindow::on_pushButton_166_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - Average");
     opt=68;
@@ -2766,7 +2922,7 @@ void BCMainWindow::on_pushButton_166_clicked()
 
 void BCMainWindow::on_pushButton_167_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - Minimum");
     opt=69;
@@ -2784,7 +2940,7 @@ void BCMainWindow::on_pushButton_168_clicked()
 
 void BCMainWindow::on_pushButton_169_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - Average");
     opt=71;
@@ -2793,7 +2949,7 @@ void BCMainWindow::on_pushButton_169_clicked()
 
 void BCMainWindow::on_pushButton_170_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - Minimum");
     opt=72;
@@ -2802,7 +2958,7 @@ void BCMainWindow::on_pushButton_170_clicked()
 
 void BCMainWindow::on_pushButton_171_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - Batch No");
     opt=73;
@@ -2811,7 +2967,7 @@ void BCMainWindow::on_pushButton_171_clicked()
 
 void BCMainWindow::on_pushButton_189_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - X(1)");
     opt=74;
@@ -2819,7 +2975,7 @@ void BCMainWindow::on_pushButton_189_clicked()
 }
 void BCMainWindow::on_pushButton_190_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - X(2)");
     opt=75;
@@ -2827,7 +2983,7 @@ void BCMainWindow::on_pushButton_190_clicked()
 }
 void BCMainWindow::on_pushButton_194_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - SD(1)");
     opt=76;
@@ -2835,7 +2991,7 @@ void BCMainWindow::on_pushButton_194_clicked()
 }
 void BCMainWindow::on_pushButton_191_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - SD(2)");
     opt=77;
@@ -2843,7 +2999,7 @@ void BCMainWindow::on_pushButton_191_clicked()
 }
 void BCMainWindow::on_pushButton_193_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - CV(1)");
     opt=78;
@@ -2851,7 +3007,7 @@ void BCMainWindow::on_pushButton_193_clicked()
 }
 void BCMainWindow::on_pushButton_192_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - CV(2))");
     opt=79;
@@ -2859,7 +3015,7 @@ void BCMainWindow::on_pushButton_192_clicked()
 }
 void BCMainWindow::on_pushButton_195_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - X(1)");
     opt=80;
@@ -2867,7 +3023,7 @@ void BCMainWindow::on_pushButton_195_clicked()
 }
 void BCMainWindow::on_pushButton_198_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - X(2)");
     opt=81;
@@ -2875,7 +3031,7 @@ void BCMainWindow::on_pushButton_198_clicked()
 }
 void BCMainWindow::on_pushButton_199_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - CV(1)");
     opt=82;
@@ -2883,7 +3039,7 @@ void BCMainWindow::on_pushButton_199_clicked()
 }
 void BCMainWindow::on_pushButton_197_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - CV(1)");
     opt=83;
@@ -2891,7 +3047,7 @@ void BCMainWindow::on_pushButton_197_clicked()
 }
 void BCMainWindow::on_pushButton_200_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - SD(1)");
     opt=84;
@@ -2899,7 +3055,7 @@ void BCMainWindow::on_pushButton_200_clicked()
 }
 void BCMainWindow::on_pushButton_196_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - SD(2)");
     opt=85;
@@ -2908,7 +3064,7 @@ void BCMainWindow::on_pushButton_196_clicked()
 
 void BCMainWindow::on_pushButton_202_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Patient Info");
     opt=86;
@@ -2917,7 +3073,7 @@ void BCMainWindow::on_pushButton_202_clicked()
 
 void BCMainWindow::on_pushButton_203_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Patient Info");
     opt=87;
@@ -2926,7 +3082,7 @@ void BCMainWindow::on_pushButton_203_clicked()
 
 void BCMainWindow::on_pushButton_204_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(0);
     ui->label_4->setText("Password");
     opt=88;
@@ -2938,7 +3094,7 @@ void BCMainWindow::on_pushButton_204_clicked()
 
 void BCMainWindow::on_pushButton_172_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Intensity-340");
     opt=89;
@@ -2957,7 +3113,7 @@ void BCMainWindow::on_pushButton_172_clicked()
 
 void BCMainWindow::on_pushButton_173_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Intensity-405");
     opt=90;
@@ -2976,7 +3132,7 @@ void BCMainWindow::on_pushButton_173_clicked()
 
 void BCMainWindow::on_pushButton_174_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Intensity-507");
 
@@ -2996,7 +3152,7 @@ void BCMainWindow::on_pushButton_174_clicked()
 
 void BCMainWindow::on_pushButton_175_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Intensity-545");
     opt=92;
@@ -3015,7 +3171,7 @@ void BCMainWindow::on_pushButton_175_clicked()
 
 void BCMainWindow::on_pushButton_176_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Intensity-572");
     opt=93;
@@ -3034,7 +3190,7 @@ void BCMainWindow::on_pushButton_176_clicked()
 
 void BCMainWindow::on_pushButton_177_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Intensity-628");
     opt=94;
@@ -3053,7 +3209,7 @@ void BCMainWindow::on_pushButton_177_clicked()
 
 void BCMainWindow::on_pushButton_178_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Intensity-700");
     opt=95;
@@ -3072,7 +3228,7 @@ void BCMainWindow::on_pushButton_178_clicked()
 
 void BCMainWindow::on_pushButton_179_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABS - 340");
     opt=96;
@@ -3091,7 +3247,7 @@ void BCMainWindow::on_pushButton_179_clicked()
 
 void BCMainWindow::on_pushButton_184_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABS - 405");
     opt=97;
@@ -3110,7 +3266,7 @@ void BCMainWindow::on_pushButton_184_clicked()
 
 void BCMainWindow::on_pushButton_181_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABS - 507");
     opt=98;
@@ -3129,7 +3285,7 @@ void BCMainWindow::on_pushButton_181_clicked()
 
 void BCMainWindow::on_pushButton_183_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABS - 545");
     opt=99;
@@ -3148,7 +3304,7 @@ void BCMainWindow::on_pushButton_183_clicked()
 
 void BCMainWindow::on_pushButton_185_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABS - 572");
     opt=100;
@@ -3167,7 +3323,7 @@ void BCMainWindow::on_pushButton_185_clicked()
 
 void BCMainWindow::on_pushButton_182_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABS - 628");
     opt=101;
@@ -3186,7 +3342,7 @@ void BCMainWindow::on_pushButton_182_clicked()
 
 void BCMainWindow::on_pushButton_180_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABS - 700");
     opt=102;
@@ -3205,7 +3361,7 @@ void BCMainWindow::on_pushButton_180_clicked()
 
 void BCMainWindow::on_pushButton_188_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABSO - 340");
     opt=103;
@@ -3225,7 +3381,7 @@ void BCMainWindow::on_pushButton_188_clicked()
 void BCMainWindow::on_pushButton_205_clicked()
 {
 
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABSO - 405");
     opt=104;
@@ -3247,7 +3403,7 @@ void BCMainWindow::on_pushButton_205_clicked()
 
 void BCMainWindow::on_pushButton_216_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABSO - 507");
     opt=105;
@@ -3268,7 +3424,7 @@ void BCMainWindow::on_pushButton_216_clicked()
 
 void BCMainWindow::on_pushButton_206_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABSO - 545");
     opt=106;
@@ -3288,7 +3444,7 @@ void BCMainWindow::on_pushButton_206_clicked()
 }
 void BCMainWindow::on_pushButton_186_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABSO - 572");
     opt=107;
@@ -3307,7 +3463,7 @@ void BCMainWindow::on_pushButton_186_clicked()
 
 void BCMainWindow::on_pushButton_217_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABSO - 628");
     opt=108;
@@ -3326,7 +3482,7 @@ void BCMainWindow::on_pushButton_217_clicked()
 
 void BCMainWindow::on_pushButton_187_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("ABSO - 545");
     opt=109;
@@ -3345,7 +3501,7 @@ void BCMainWindow::on_pushButton_187_clicked()
 
 void BCMainWindow::on_pushButton_218_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control 1 - Maximum");
     opt=110;
@@ -3354,7 +3510,7 @@ void BCMainWindow::on_pushButton_218_clicked()
 
 void BCMainWindow::on_pushButton_219_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control 2 - Maximum");
     opt=111;
@@ -3363,7 +3519,7 @@ void BCMainWindow::on_pushButton_219_clicked()
 
 void BCMainWindow::on_pushButton_220_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - Maximum");
     opt=112;
@@ -3372,7 +3528,7 @@ void BCMainWindow::on_pushButton_220_clicked()
 
 void BCMainWindow::on_pushButton_221_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - Maximum");
     opt=113;
@@ -3381,7 +3537,7 @@ void BCMainWindow::on_pushButton_221_clicked()
 
 void BCMainWindow::on_pushButton_222_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control1 - Maximum");
     opt=114;
@@ -3390,9 +3546,29 @@ void BCMainWindow::on_pushButton_222_clicked()
 
 void BCMainWindow::on_pushButton_223_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(16);
     ui->stackedWidget_2->setCurrentIndex(2);
     ui->label_4->setText("Control2 - Maximum");
     opt=115;
     ui->lineEdit->setText(ui->lineEdit_146->text());
 }
+
+void BCMainWindow::on_LabName_Btn_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(16);
+    ui->stackedWidget_2->setCurrentIndex(1);
+    ui->label_4->setText("Lab Name");
+    opt=117;
+    ui->lineEdit->setText(ui->LabName->text());
+}
+
+void BCMainWindow::on_UserName_Btn_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(16);
+    ui->stackedWidget_2->setCurrentIndex(1);
+    ui->label_4->setText("User Name");
+    opt=118;
+    ui->lineEdit->setText(ui->UserName->text());
+}
+
+
